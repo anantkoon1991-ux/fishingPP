@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ทะเบียนทรัพย์สิน - Dr.Myland</title>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body { font-family: 'Sarabun', sans-serif; background: #f8fafc; padding: 20px; }
+        .container { max-width: 1200px; margin: 0 auto; }
+        
+        /* Header & Nav */
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .btn-back { text-decoration: none; color: #64748b; font-weight: bold; }
+        .btn-add { background: #2563eb; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; }
+
+        /* Tabs */
+        .tabs { display: flex; gap: 10px; margin-bottom: 20px; }
+        .tab-btn { padding: 10px 20px; border: none; background: #e2e8f0; border-radius: 20px; cursor: pointer; font-weight: bold; color: #64748b; }
+        .tab-btn.active { background: #2563eb; color: white; }
+
+        /* Table */
+        .asset-card { background: white; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); padding: 20px; overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #eee; }
+        th { background: #f1f5f9; color: #475569; }
+        .status-active { color: #16a34a; font-weight: bold; }
+        .status-disposed { color: #dc2626; text-decoration: line-through; }
+
+        /* Modal (Form) */
+        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); align-items: center; justify-content: center; }
+        .modal-content { background: white; padding: 25px; border-radius: 10px; width: 400px; }
+        input, select { width: 100%; padding: 10px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; }
+        .action-btn { cursor: pointer; margin-right: 5px; padding: 5px 10px; border-radius: 4px; border: 1px solid #ddd; }
+        .btn-repair { background: #fef08a; color: #854d0e; }
+        .btn-dispose { background: #fecaca; color: #991b1b; }
+    </style>
+    <script src="config.js"></script>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <div>
+            <a href="manager.html" class="btn-back"><i class="fas fa-arrow-left"></i> กลับหน้าบัญชี</a>
+            <h1>🏛️ ทะเบียนทรัพย์สินร้าน</h1>
+        </div>
+        <button class="btn-add" onclick="openModal('add')">+ เพิ่มทรัพย์สินใหม่</button>
+    </div>
+
+    <div class="tabs">
+        <button class="tab-btn active" onclick="filterCat('outdoor')">🌳 กลางแจ้ง</button>
+        <button class="tab-btn" onclick="filterCat('electrical')">💡 ระบบไฟฟ้า</button>
+        <button class="tab-btn" onclick="filterCat('building')">🏠 สิ่งปลูกสร้าง</button>
+        <button class="tab-btn" onclick="filterCat('garden')">🌻 สวนและตกแต่ง</button>
+    </div>
+
+    <div class="asset-card">
+        <table>
+            <thead>
+                <tr>
+                    <th>รายการ</th>
+                    <th>จำนวน</th>
+                    <th>ราคา/หน่วย</th>
+                    <th>มูลค่ารวม</th>
+                    <th>ซื้อเมื่อ</th>
+                    <th>สถานะ</th>
+                    <th>จัดการ</th>
+                </tr>
+            </thead>
+            <tbody id="assetTable">
+                <tr><td colspan="7">กำลังโหลด...</td></tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div id="addModal" class="modal">
+    <div class="modal-content">
+        <h3>เพิ่มทรัพย์สินใหม่</h3>
+        <input type="text" id="newName" placeholder="ชื่อรายการ (เช่น โต๊ะ)">
+        <select id="newCat">
+            <option value="outdoor">กลางแจ้ง</option>
+            <option value="electrical">ระบบไฟฟ้า</option>
+            <option value="building">สิ่งปลูกสร้าง</option>
+            <option value="garden">สวนและตกแต่ง</option>
+        </select>
+        <div style="display:flex; gap:10px;">
+            <input type="number" id="newQty" placeholder="จำนวน" value="1">
+            <input type="text" id="newUnit" placeholder="หน่วย (ตัว/ชุด)" value="ตัว">
+        </div>
+        <input type="number" id="newPrice" placeholder="ราคาต่อหน่วย">
+        <input type="date" id="newDate">
+        <button onclick="saveAsset()" style="width:100%; background:#2563eb; color:white; border:none; padding:10px; border-radius:5px;">บันทึก</button>
+        <button onclick="closeModal('add')" style="width:100%; margin-top:10px; background:transparent; border:none;">ยกเลิก</button>
+    </div>
+</div>
+
+<div id="actionModal" class="modal">
+    <div class="modal-content">
+        <h3 id="actionTitle">จัดการทรัพย์สิน</h3>
+        <input type="hidden" id="actAssetId">
+        <select id="actType">
+            <option value="repair">🛠️ ส่งซ่อมแซม</option>
+            <option value="dispose">🗑️ จำหน่ายออก (ของเสีย/ขายทิ้ง)</option>
+        </select>
+        <input type="number" id="actCost" placeholder="ค่าใช้จ่าย (ถ้ามี)">
+        <input type="text" id="actDesc" placeholder="รายละเอียด (เช่น เปลี่ยนขาโต๊ะ)">
+        <button onclick="saveAction()" style="width:100%; background:#ef4444; color:white; border:none; padding:10px; border-radius:5px;">บันทึกผล</button>
+        <button onclick="closeModal('action')" style="width:100%; margin-top:10px; background:transparent; border:none;">ยกเลิก</button>
+    </div>
+</div>
+
+<script>
+    let allAssets = [];
+    let currentCat = 'outdoor';
+
+    // โหลดข้อมูล
+    async function loadAssets() {
+        const res = await AppConfig.fetch('/api/assets');
+        allAssets = await res.json();
+        renderTable();
+    }
+
+    function renderTable() {
+        const tbody = document.getElementById('assetTable');
+        tbody.innerHTML = '';
+        
+        // กรองตามหมวดหมู่
+        const filtered = allAssets.filter(a => a.category === currentCat);
+
+        if(filtered.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:20px;">ไม่มีข้อมูลในหมวดนี้</td></tr>';
+            return;
+        }
+
+        filtered.forEach(a => {
+            const date = new Date(a.buy_date).toLocaleDateString('th-TH');
+            const total = (a.quantity * a.price_per_unit).toLocaleString();
+            const statusClass = a.status === 'active' ? 'status-active' : 'status-disposed';
+            const statusText = a.status === 'active' ? 'ปกติ' : 'จำหน่ายแล้ว';
+
+            // ปุ่มจัดการ (ถ้าจำหน่ายแล้ว ไม่ต้องโชว์ปุ่ม)
+            const actions = a.status === 'active' ? `
+                <button class="action-btn btn-repair" onclick="openAction(${a.id}, 'ซ่อมแซม')">ซ่อม</button>
+                <button class="action-btn btn-dispose" onclick="openAction(${a.id}, 'จำหน่าย')">จำหน่าย</button>
+            ` : '-';
+
+            tbody.innerHTML += `
+                <tr>
+                    <td>${a.name}</td>
+                    <td>${a.quantity} ${a.unit}</td>
+                    <td>${Number(a.price_per_unit).toLocaleString()}</td>
+                    <td>${total}</td>
+                    <td>${date}</td>
+                    <td class="${statusClass}">${statusText}</td>
+                    <td>${actions}</td>
+                </tr>
+            `;
+        });
+    }
+
+    // เปลี่ยน Tab
+    function filterCat(cat) {
+        currentCat = cat;
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        event.target.classList.add('active');
+        renderTable();
+    }
+
+    // Modal Functions
+    function openModal(type) { document.getElementById(type+'Modal').style.display = 'flex'; }
+    function closeModal(type) { document.getElementById(type+'Modal').style.display = 'none'; }
+    
+    document.getElementById('newDate').valueAsDate = new Date();
+
+    async function saveAsset() {
+        const body = {
+            name: document.getElementById('newName').value,
+            category: document.getElementById('newCat').value,
+            quantity: document.getElementById('newQty').value,
+            unit: document.getElementById('newUnit').value,
+            price: document.getElementById('newPrice').value,
+            date: document.getElementById('newDate').value
+        };
+        await AppConfig.fetch('/api/assets', {
+            method: 'POST',
+            body: JSON.stringify(body)
+        });
+        closeModal('add');
+        loadAssets();
+    }
+
+    function openAction(id, name) {
+        document.getElementById('actAssetId').value = id;
+        document.getElementById('actionTitle').innerText = 'จัดการ: ' + name;
+        openModal('action');
+    }
+
+    async function saveAction() {
+        const body = {
+            asset_id: document.getElementById('actAssetId').value,
+            action: document.getElementById('actType').value,
+            cost: document.getElementById('actCost').value || 0,
+            desc: document.getElementById('actDesc').value
+        };
+        await AppConfig.fetch('/api/assets/action', {
+            method: 'POST',
+            body: JSON.stringify(body)
+        });
+        closeModal('action');
+        loadAssets();
+        alert('บันทึกเรียบร้อย');
+    }
+
+    loadAssets();
+</script>
+</body>
+</html>

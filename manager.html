@@ -1,0 +1,1096 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <title>Manager - Dr.Myland</title>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body { 
+            font-family: 'Sarabun', sans-serif; 
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .container { max-width: 1200px; margin: 0 auto; }
+
+        .header {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            color: #1e293b;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.8em;
+        }
+
+        /* Tabs */
+        .tabs { 
+            display: flex; 
+            gap: 10px; 
+            margin-bottom: 20px; 
+            background: white;
+            padding: 15px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            border-bottom: 2px solid #e2e8f0;
+            overflow-x: auto;
+        }
+
+        .tab-btn { 
+            padding: 12px 20px; 
+            border: none; 
+            background: transparent;
+            cursor: pointer; 
+            font-size: 1em; 
+            color: #64748b; 
+            font-weight: 600;
+            border-radius: 8px;
+            transition: 0.2s;
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .tab-btn:hover {
+            background: #f1f5f9;
+        }
+
+        .tab-btn.active { 
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            color: white;
+        }
+        
+        /* Content */
+        .panel { 
+            display: none; 
+        }
+
+        .panel.active { 
+            display: block; 
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .card { 
+            background: white; 
+            padding: 24px; 
+            border-radius: 12px; 
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        }
+
+        .card h2 {
+            color: #1e293b;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+        }
+
+        .toolbar { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center;
+            margin-bottom: 20px; 
+            gap: 15px;
+        }
+
+        .search-box {
+            flex: 1;
+            max-width: 300px;
+            position: relative;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 10px 15px;
+            padding-left: 35px;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            font-family: 'Sarabun', sans-serif;
+        }
+
+        .search-box i {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #94a3b8;
+        }
+
+        .btn-add { 
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white; 
+            border: none; 
+            padding: 12px 20px; 
+            border-radius: 8px; 
+            cursor: pointer; 
+            display: flex; 
+            align-items: center; 
+            gap: 8px;
+            font-weight: 600;
+            transition: 0.2s;
+            font-family: 'Sarabun', sans-serif;
+        }
+
+        .btn-add:hover { 
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+        }
+
+        table { 
+            width: 100%; 
+            border-collapse: collapse;
+        }
+
+        th { 
+            padding: 14px; 
+            text-align: left; 
+            background: #f8fafc;
+            color: #64748b;
+            font-weight: 600;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        td { 
+            padding: 14px; 
+            border-bottom: 1px solid #f1f5f9;
+            color: #334155;
+        }
+
+        tr:hover {
+            background: #f8fafc;
+        }
+
+        .category-badge {
+            background: #eff6ff;
+            color: #2563eb;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 600;
+        }
+
+        .action-btn { 
+            padding: 8px 12px; 
+            border-radius: 6px; 
+            cursor: pointer; 
+            border: none; 
+            margin-right: 8px;
+            font-size: 0.9em;
+            font-weight: 600;
+            transition: 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .btn-edit { 
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .btn-edit:hover {
+            background: #fcd34d;
+        }
+
+        .btn-del { 
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .btn-del:hover {
+            background: #fca5a5;
+        }
+
+        /* Modal form */
+        .modal { 
+            display: none; 
+            position: fixed; 
+            inset: 0; 
+            background: rgba(0,0,0,0.5); 
+            align-items: center; 
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content { 
+            background: white; 
+            padding: 30px; 
+            border-radius: 12px; 
+            width: 90%;
+            max-width: 450px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+
+        .modal-header {
+            font-size: 1.3em;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .form-group { 
+            margin-bottom: 18px; 
+        }
+
+        .form-group label { 
+            display: block; 
+            margin-bottom: 8px; 
+            color: #334155;
+            font-weight: 600;
+            font-size: 0.95em;
+        }
+
+        .form-group input, 
+        .form-group select,
+        .form-group textarea { 
+            width: 100%; 
+            padding: 12px; 
+            border: 1px solid #cbd5e1; 
+            border-radius: 8px; 
+            box-sizing: border-box;
+            font-family: 'Sarabun', sans-serif;
+            font-size: 1em;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .modal-actions { 
+            display: flex; 
+            justify-content: flex-end; 
+            gap: 10px; 
+            margin-top: 25px;
+        }
+
+        .btn-cancel {
+            padding: 12px 20px;
+            background: #e2e8f0;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            color: #475569;
+            transition: 0.2s;
+            font-family: 'Sarabun', sans-serif;
+        }
+
+        .btn-cancel:hover {
+            background: #cbd5e1;
+        }
+
+        .btn-submit {
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: 0.2s;
+            font-family: 'Sarabun', sans-serif;
+        }
+
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #94a3b8;
+        }
+
+        .empty-state i {
+            font-size: 3em;
+            margin-bottom: 15px;
+            opacity: 0.3;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 16px 24px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            z-index: 1001;
+            animation: slideUp 0.3s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(100px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .toast.success {
+            border-left: 4px solid #10b981;
+        }
+
+        .toast.error {
+            border-left: 4px solid #ef4444;
+        }
+
+        @media (max-width: 768px) {
+            .tabs {
+                flex-direction: column;
+            }
+            
+            .toolbar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .search-box {
+                max-width: 100%;
+            }
+
+            .modal-content {
+                width: 95%;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+    <script src="config.js"></script>
+</head>
+<body>
+
+<div class="container">
+    <!-- Header -->
+    <div class="header">
+        <h1><i class="fas fa-cogs"></i> Manager Dashboard</h1>
+        <div class="header-user">
+            <button onclick="logout()" style="margin-top: 8px; padding: 8px 16px; background: #ef4444; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">Logout</button>
+        </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="tabs">
+        <button class="tab-btn active" onclick="switchTab('products')"><i class="fas fa-box"></i> Products</button>
+        <button class="tab-btn" onclick="switchTab('fish')"><i class="fas fa-fish"></i> Fish Species</button>
+        <button class="tab-btn" onclick="switchTab('users')"><i class="fas fa-users"></i> Users</button>
+        <button class="tab-btn" onclick="switchTab('reports')"><i class="fas fa-chart-bar"></i> Daily Reports</button>
+        <button class="tab-btn" onclick="switchTab('fish_report')" style="background:#e0f2fe; color:#0369a1;"><i class="fas fa-chart-bar"></i> Fish Stock Report</button>
+    </div>
+
+    <!-- Products Panel -->
+    <div id="products" class="panel active">
+        <div class="card">
+            <h2><i class="fas fa-box"></i> Product Management</h2>
+            <div class="toolbar">
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="productSearch" placeholder="Search products..." onkeyup="filterProducts()">
+                </div>
+                <button class="btn-add" onclick="openProductModal()"><i class="fas fa-plus"></i> Add Product</button>
+            </div>
+            <div class="table-wrapper">
+                <table id="productsTable">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Category</th>
+                            <th>Price (฿)</th>
+                            <th>Stock</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="productsList">
+                        <tr><td colspan="6" style="text-align:center; padding: 40px;">Loading...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Fish Species Panel -->
+    <div id="fish" class="panel">
+        <div class="card">
+            <div class="toolbar">
+                <h2>🐟 รายชื่อพันธุ์ปลา</h2>
+                <button class="btn-add" onclick="openFishModal()"><i class="fas fa-plus"></i> เพิ่มพันธุ์ปลา</button>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>ชื่อไทย</th>
+                        <th>ชื่ออังกฤษ</th>
+                        <th>ความยาก</th>
+                        <th>จัดการ</th>
+                    </tr>
+                </thead>
+                <tbody id="fishTable">
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Reports Panel -->
+    <div id="reports" class="panel">
+        <div class="card">
+            <h2><i class="fas fa-chart-bar"></i> Daily Financial Report</h2>
+            <div class="toolbar">
+                <div style="display: flex; gap: 10px; align-items: center;">
+                    <label style="font-weight: 600;">Select Date:</label>
+                    <input type="date" id="reportDate" style="padding: 10px 15px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: 'Sarabun', sans-serif;">
+                    <button onclick="loadDailyReport()" class="btn-add" style="margin: 0;">View Report</button>
+                </div>
+            </div>
+            <div style="display: flex; gap: 15px; font-weight: 600; color: #555; margin-bottom: 15px; font-size: 0.95em; flex-wrap: wrap;">
+                <span>Income: <span id="dInc" style="color: #10b981; font-size: 1.1em;">฿0</span></span>
+                <span>Expense: <span id="dExp" style="color: #ef4444; font-size: 1.1em;">฿0</span></span>
+                <span>Net: <span id="dNet" style="color: #2563eb; font-size: 1.1em;">฿0</span></span>
+            </div>
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Time</th>
+                            <th>Description</th>
+                            <th>Type</th>
+                            <th>Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody id="reportTable">
+                        <tr><td colspan="4" style="text-align: center; color: #94a3b8;">Please select a date...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Fish Stock Report Panel -->
+    <div id="fish_report" class="panel">
+        <div class="card">
+            <h2><i class="fas fa-chart-pie"></i> 🐟 สรุปสถานะปลาในบ่อ (Real-time)</h2>
+            <div class="toolbar">
+                <button class="btn-add" onclick="loadFishReport()" style="background: #0ea5e9; color: white;">
+                    <i class="fas fa-sync"></i> โหลดข้อมูลใหม่
+                </button>
+            </div>
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>พันธุ์ปลา</th>
+                            <th>คงเหลือ (กก.)</th>
+                            <th>จำนวน (ตัว)</th>
+                            <th>ทุนเฉลี่ย/กก.</th>
+                            <th>มูลค่าทุนรวม</th>
+                            <th>ขายวันนี้ (บาท)</th>
+                            <th>ขายวันนี้ (กก.)</th>
+                            <th>กำไรเบื้องต้น</th>
+                        </tr>
+                    </thead>
+                    <tbody id="fishReportTable">
+                        <tr><td colspan="8" style="text-align: center; color: #94a3b8;">Loading...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <p style="font-size:0.8em; color:#666; margin-top:10px;">
+                <b>หมายเหตุ:</b> กำไรเบื้องต้น = (ยอดขายวันนี้) - (น้ำหนักที่ขาย × ทุนเฉลี่ย)
+            </p>
+        </div>
+    </div>
+
+    <!-- Users Panel -->
+    <div id="users" class="panel">
+        <div class="card">
+            <div class="toolbar">
+                <h2>👥 รายชื่อพนักงาน</h2>
+                <button class="btn-add" onclick="openUserModal()"><i class="fas fa-user-plus"></i> เพิ่มพนักงาน</button>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>ชื่อผู้ใช้ (Username)</th>
+                        <th>ตำแหน่ง (Role)</th>
+                        <th>วันที่สร้าง</th>
+                        <th>จัดการ</th>
+                    </tr>
+                </thead>
+                <tbody id="userTable">
+                    </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Product Modal -->
+<div class="modal" id="productModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <i class="fas fa-box"></i>
+            <span id="productModalTitle">Add New Product</span>
+        </div>
+        <form onsubmit="saveProduct(event)">
+            <div class="form-group">
+                <label>Product Name</label>
+                <input type="text" id="productName" required>
+            </div>
+            <div class="form-group">
+                <label>Category</label>
+                <select id="productCategory" required>
+                    <option value="">Select Category</option>
+                    <option value="Feed">Feed</option>
+                    <option value="Equipment">Equipment</option>
+                    <option value="Medicine">Medicine</option>
+                    <option value="Other">Other</option>
+                </select>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Price (฿)</label>
+                    <input type="number" id="productPrice" step="0.01" required>
+                </div>
+                <div class="form-group">
+                    <label>Stock</label>
+                    <input type="number" id="productStock" required>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Description</label>
+                <textarea id="productDesc"></textarea>
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="btn-cancel" onclick="closeProductModal()">Cancel</button>
+                <button type="submit" class="btn-submit">Save</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Fish Modal -->
+<div id="fishModal" class="modal">
+    <div class="modal-content">
+        <h3 id="fishModalTitle">เพิ่มพันธุ์ปลา</h3>
+        <form id="fishForm">
+            <input type="hidden" id="fishId">
+            <div class="form-group">
+                <label>ชื่อปลา (ภาษาไทย)</label>
+                <input type="text" id="fishNameTh" required placeholder="เช่น ปลานิล">
+            </div>
+            <div class="form-group">
+                <label>ชื่อปลา (ภาษาอังกฤษ)</label>
+                <input type="text" id="fishNameEn" placeholder="e.g. Tilapia">
+            </div>
+            <div class="form-group">
+                <label>ระดับความยาก</label>
+                <select id="fishDifficulty">
+                    <option value="Easy">ง่าย (Easy)</option>
+                    <option value="Medium">ปานกลาง (Medium)</option>
+                    <option value="Hard">ยาก (Hard)</option>
+                    <option value="Rare">หายาก (Rare)</option>
+                </select>
+            </div>
+            <div class="modal-actions">
+                <button type="button" onclick="closeFishModal()" style="padding:10px; background:#e2e8f0; border:none; border-radius:5px; cursor:pointer;">ยกเลิก</button>
+                <button type="submit" style="padding:10px 20px; background:#2563eb; color:white; border:none; border-radius:5px; cursor:pointer;">บันทึก</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- User Modal -->
+<div id="userModal" class="modal">
+    <div class="modal-content">
+        <h3>เพิ่มพนักงานใหม่</h3>
+        <form id="userForm">
+            <div class="form-group">
+                <label>ชื่อผู้ใช้ (Username)</label>
+                <input type="text" id="userUsername" required placeholder="ใช้สำหรับ Login">
+            </div>
+            <div class="form-group">
+                <label>รหัสผ่าน (Password)</label>
+                <input type="password" id="userPassword" required placeholder="ตั้งรหัสผ่าน">
+            </div>
+            <div class="form-group">
+                <label>ตำแหน่ง</label>
+                <select id="userRole">
+                    <option value="staff">พนักงานทั่วไป (Staff)</option>
+                    <option value="admin">ผู้จัดการ (Admin)</option>
+                </select>
+            </div>
+            <div class="modal-actions">
+                <button type="button" onclick="closeUserModal()" style="padding:10px; background:#e2e8f0; border:none; border-radius:5px; cursor:pointer;">ยกเลิก</button>
+                <button type="submit" style="padding:10px 20px; background:#2563eb; color:white; border:none; border-radius:5px; cursor:pointer;">สร้างบัญชี</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    let editingId = null;
+    let editingType = null;
+
+
+    // Tab switching
+    function switchTab(tabName) {
+        document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.getElementById(tabName).classList.add('active');
+        event.target.classList.add('active');
+
+        if (tabName === 'products') loadProducts();
+        if (tabName === 'fish') loadFish();
+        if (tabName === 'users') loadUsers();
+    }
+
+    // Products
+    async function loadProducts() {
+        try {
+            const res = await AppConfig.fetch('/api/products');
+            const products = await res.json();
+            const tbody = document.getElementById('productsList');
+            tbody.innerHTML = products.map(p => `
+                <tr>
+                    <td>${p.id}</td>
+                    <td>${p.name}</td>
+                    <td><span class="category-badge">${p.category}</span></td>
+                    <td>${(p.price || 0).toFixed(2)}</td>
+                    <td>${p.stock}</td>
+                    <td>
+                        <button class="action-btn btn-edit" onclick="editProduct(${p.id})"><i class="fas fa-edit"></i> Edit</button>
+                        <button class="action-btn btn-del" onclick="deleteProduct(${p.id})"><i class="fas fa-trash"></i> Delete</button>
+                    </td>
+                </tr>
+            `).join('');
+        } catch (e) {
+            console.error('Error loading products:', e);
+        }
+    }
+
+    function filterProducts() {
+        const search = document.getElementById('productSearch').value.toLowerCase();
+        document.querySelectorAll('#productsList tr').forEach(row => {
+            row.style.display = row.textContent.toLowerCase().includes(search) ? '' : 'none';
+        });
+    }
+
+    function openProductModal() {
+        editingId = null;
+        document.getElementById('productModalTitle').textContent = 'Add New Product';
+        document.getElementById('productName').value = '';
+        document.getElementById('productCategory').value = '';
+        document.getElementById('productPrice').value = '';
+        document.getElementById('productStock').value = '';
+        document.getElementById('productDesc').value = '';
+        document.getElementById('productModal').classList.add('show');
+    }
+
+    function closeProductModal() {
+        document.getElementById('productModal').classList.remove('show');
+    }
+
+    async function editProduct(id) {
+        try {
+            const res = await AppConfig.fetch(`/api/products/${id}`);
+            const product = await res.json();
+            editingId = id;
+            document.getElementById('productModalTitle').textContent = 'Edit Product';
+            document.getElementById('productName').value = product.name;
+            document.getElementById('productCategory').value = product.category;
+            document.getElementById('productPrice').value = product.price;
+            document.getElementById('productStock').value = product.stock;
+            document.getElementById('productDesc').value = product.description || '';
+            document.getElementById('productModal').classList.add('show');
+        } catch (e) {
+            console.error('Error loading product:', e);
+        }
+    }
+
+    async function saveProduct(e) {
+        e.preventDefault();
+        const data = {
+            name: document.getElementById('productName').value,
+            category: document.getElementById('productCategory').value,
+            price: parseFloat(document.getElementById('productPrice').value),
+            stock: parseInt(document.getElementById('productStock').value),
+            description: document.getElementById('productDesc').value
+        };
+
+        try {
+            const url = editingId ? `/api/products/${editingId}` : `/api/products`;
+            const method = editingId ? 'PUT' : 'POST';
+            const res = await AppConfig.fetch(url, {
+                method,
+                body: JSON.stringify(data)
+            });
+            
+            if (res.ok) {
+                showToast('Product saved successfully', 'success');
+                closeProductModal();
+                loadProducts();
+            } else {
+                showToast('Error saving product', 'error');
+            }
+        } catch (e) {
+            console.error('Error:', e);
+            showToast('Error saving product', 'error');
+        }
+    }
+
+    async function deleteProduct(id) {
+        if (!confirm('Are you sure?')) return;
+        try {
+            const res = await AppConfig.fetch(`/api/products/${id}`, { method: 'DELETE' });
+            if (res.ok) {
+                showToast('Product deleted', 'success');
+                loadProducts();
+            }
+        } catch (e) {
+            console.error('Error:', e);
+        }
+    }
+
+    // --- FISH LOGIC ---
+
+    // 1. โหลดข้อมูลปลา
+    async function loadFish() {
+        try {
+            const res = await AppConfig.fetch('/api/fish');
+            const data = await res.json();
+            const list = Array.isArray(data) ? data : data.data;
+            
+            const tbody = document.getElementById('fishTable');
+            tbody.innerHTML = '';
+            list.forEach(f => {
+                // กำหนดสีตามความยาก
+                let badgeColor = '#dcfce7'; // green
+                let textColor = '#166534';
+                if(f.difficulty_level === 'Medium') { badgeColor = '#fef9c3'; textColor = '#854d0e'; } // yellow
+                if(f.difficulty_level === 'Hard') { badgeColor = '#fee2e2'; textColor = '#991b1b'; } // red
+
+                tbody.innerHTML += `
+                    <tr>
+                        <td>${f.id}</td>
+                        <td>${f.name_th}</td>
+                        <td>${f.name_en || '-'}</td>
+                        <td><span style="background:${badgeColor}; color:${textColor}; padding:2px 8px; border-radius:10px; font-size:0.8em; font-weight:bold;">${f.difficulty_level}</span></td>
+                        <td>
+                            <button class="action-btn btn-edit" onclick='editFish(${JSON.stringify(f)})'><i class="fas fa-edit"></i></button>
+                            <button class="action-btn btn-del" onclick="deleteFish(${f.id})"><i class="fas fa-trash"></i></button>
+                        </td>
+                    </tr>
+                `;
+            });
+        } catch (err) { console.error(err); }
+    }
+
+    // 2. เปิด/ปิด Modal
+    function openFishModal() {
+        document.getElementById('fishForm').reset();
+        document.getElementById('fishId').value = '';
+        document.getElementById('fishModalTitle').innerText = 'เพิ่มพันธุ์ปลา';
+        document.getElementById('fishModal').style.display = 'flex';
+    }
+
+    function closeFishModal() {
+        document.getElementById('fishModal').style.display = 'none';
+    }
+
+    function editFish(f) {
+        document.getElementById('fishId').value = f.id;
+        document.getElementById('fishNameTh').value = f.name_th;
+        document.getElementById('fishNameEn').value = f.name_en;
+        document.getElementById('fishDifficulty').value = f.difficulty_level;
+        document.getElementById('fishModalTitle').innerText = 'แก้ไขพันธุ์ปลา';
+        document.getElementById('fishModal').style.display = 'flex';
+    }
+
+    // 3. บันทึก (Add/Edit)
+    document.getElementById('fishForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const id = document.getElementById('fishId').value;
+        const payload = {
+            name_th: document.getElementById('fishNameTh').value,
+            name_en: document.getElementById('fishNameEn').value,
+            difficulty_level: document.getElementById('fishDifficulty').value
+        };
+
+        const url = id ? `/api/fish/${id}` : '/api/fish';
+        const method = id ? 'PUT' : 'POST';
+
+        try {
+            const res = await AppConfig.fetch(url, {
+                method: method,
+                body: JSON.stringify(payload)
+            });
+            if(res.ok) {
+                closeFishModal();
+                loadFish(); // โหลดตารางใหม่
+            } else {
+                alert('บันทึกไม่สำเร็จ');
+            }
+        } catch (err) { alert('Error connect server'); }
+    });
+
+    // 4. ลบข้อมูล
+    async function deleteFish(id) {
+        if(!confirm('ยืนยันลบพันธุ์ปลานี้?')) return;
+        try {
+            const res = await AppConfig.fetch(`/api/fish/${id}`, {
+                method: 'DELETE'
+            });
+            if(res.ok) loadFish();
+            else alert('ลบไม่สำเร็จ');
+        } catch (err) { alert('Error'); }
+    }
+
+    // --- USER LOGIC ---
+
+    async function loadUsers() {
+        try {
+            const res = await AppConfig.fetch('/api/users');
+            const data = await res.json();
+            const list = Array.isArray(data) ? data : data.data;
+            
+            const tbody = document.getElementById('userTable');
+            tbody.innerHTML = '';
+            list.forEach(u => {
+                // ไม่แสดงปุ่มลบ ถ้าเป็น admin คนแรก
+                const delBtn = u.id == 1 ? '' : `<button class="action-btn btn-del" onclick="deleteUser(${u.id})"><i class="fas fa-trash"></i> ลบ</button>`;
+                
+                tbody.innerHTML += `
+                    <tr>
+                        <td>${u.id}</td>
+                        <td style="font-weight:bold; color:#1e293b;">${u.username}</td>
+                        <td><span style="background:${u.role==='admin'?'#fee2e2':'#e0f2fe'}; color:${u.role==='admin'?'#991b1b':'#0284c7'}; padding:2px 8px; border-radius:10px; font-size:0.9em;">${u.role.toUpperCase()}</span></td>
+                        <td style="color:#64748b; font-size:0.9em;">${new Date(u.created_at).toLocaleDateString()}</td>
+                        <td>${delBtn}</td>
+                    </tr>
+                `;
+            });
+        } catch (err) { console.error(err); }
+    }
+
+    function openUserModal() {
+        document.getElementById('userForm').reset();
+        document.getElementById('userModal').style.display = 'flex';
+    }
+
+    function closeUserModal() {
+        document.getElementById('userModal').style.display = 'none';
+    }
+
+    document.getElementById('userForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const payload = {
+            username: document.getElementById('userUsername').value,
+            password: document.getElementById('userPassword').value,
+            role: document.getElementById('userRole').value
+        };
+
+        try {
+            const res = await AppConfig.fetch('/api/users', {
+                method: 'POST',
+                body: JSON.stringify(payload)
+            });
+            const result = await res.json();
+            
+            if(res.ok && result.success) {
+                closeUserModal();
+                loadUsers();
+                alert('สร้างบัญชีสำเร็จ');
+            } else {
+                alert('Error: ' + (result.error || 'สร้างไม่ได้'));
+            }
+        } catch (err) { alert('Server Error'); }
+    });
+
+    async function deleteUser(id) {
+        if(!confirm('ต้องการลบพนักงานคนนี้? (กู้คืนไม่ได้)')) return;
+        try {
+            const res = await AppConfig.fetch(`/api/users/${id}`, {
+                method: 'DELETE'
+            });
+            if(res.ok) loadUsers();
+            else alert('ลบไม่สำเร็จ');
+        } catch (err) { alert('Error'); }
+    }
+
+    // Utilities
+    function showToast(message, type) {
+        const toast = document.createElement('div');
+        toast.className = `toast ${type}`;
+        toast.textContent = message;
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 3000);
+    }
+
+    function logout() {
+        if (confirm('Logout?')) {
+            localStorage.removeItem('token');
+            window.location.href = 'login.html';
+        }
+    }
+
+    // Set initial report date to today
+    document.getElementById('reportDate').valueAsDate = new Date();
+
+    // Daily Report Function
+    async function loadDailyReport() {
+        const date = document.getElementById('reportDate').value;
+        if(!date) {
+            alert('Please select a date');
+            return;
+        }
+
+        try {
+            const res = await AppConfig.fetch(`/api/finance/search?date=${date}`);
+            const rows = await res.json();
+
+            const tbody = document.getElementById('reportTable');
+            tbody.innerHTML = '';
+            
+            let inc = 0, exp = 0;
+
+            if(rows.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: #94a3b8;">No transactions found for this date</td></tr>';
+            } else {
+                rows.forEach(r => {
+                    if(r.type === 'income') inc += parseFloat(r.amount);
+                    if(r.type === 'expense') exp += parseFloat(r.amount);
+
+                    const time = new Date(r.created_at).toLocaleTimeString('th-TH');
+                    const typeHtml = r.type === 'income' 
+                        ? '<span style="color: #10b981; background: #dcfce7; padding: 4px 12px; border-radius: 4px; font-weight: 600; font-size: 0.85em;">Income</span>'
+                        : '<span style="color: #ef4444; background: #fee2e2; padding: 4px 12px; border-radius: 4px; font-weight: 600; font-size: 0.85em;">Expense</span>';
+
+                    tbody.innerHTML += `
+                        <tr>
+                            <td>${time}</td>
+                            <td>${r.description}</td>
+                            <td>${typeHtml}</td>
+                            <td style="font-weight: bold; color: ${r.type==='income'?'#10b981':'#ef4444'}; font-size: 0.95em;">฿${(+r.amount).toLocaleString()}</td>
+                        </tr>
+                    `;
+                });
+            }
+
+            document.getElementById('dInc').innerText = '฿' + inc.toLocaleString();
+            document.getElementById('dExp').innerText = '฿' + exp.toLocaleString();
+            document.getElementById('dNet').innerText = '฿' + (inc - exp).toLocaleString();
+        } catch (err) {
+            console.error(err);
+            alert('Error loading report');
+        }
+    }
+
+    // Fish Stock Report Function
+    async function loadFishReport() {
+        try {
+            const res = await AppConfig.fetch('/api/stock/fish-report');
+            const data = await res.json();
+            
+            const tbody = document.getElementById('fishReportTable');
+            tbody.innerHTML = '';
+            
+            if (data.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="8" style="text-align: center; color: #94a3b8;">ไม่มีข้อมูลปลา</td></tr>';
+                return;
+            }
+            
+            data.forEach(f => {
+                const weight = parseFloat(f.current_weight || 0);
+                const qty = parseInt(f.current_qty || 0);
+                const cost = parseFloat(f.avg_cost || 0);
+                const totalValue = parseFloat(f.total_value_cost || 0);
+                const sales = parseFloat(f.sales_today || 0);
+                const soldWeight = parseFloat(f.weight_sold_today || 0);
+                
+                // คำนวณกำไรเบื้องต้น: ขายได้ - (นน.ที่ขาย x ต้นทุน)
+                const estProfit = sales - (soldWeight * cost);
+                const profitClass = estProfit >= 0 ? 'text-green-600' : 'text-red-600';
+                const profitBold = estProfit >= 0 ? 'font-bold' : 'font-bold';
+
+                tbody.innerHTML += `
+                    <tr>
+                        <td><b>${f.name_th}</b></td>
+                        <td>${weight.toLocaleString('th-TH', {maximumFractionDigits: 2})} กก.</td>
+                        <td>${qty} ตัว</td>
+                        <td>฿${cost.toLocaleString('th-TH', {maximumFractionDigits: 2})}</td>
+                        <td style="color:#2563eb; font-weight:bold;">฿${totalValue.toLocaleString('th-TH', {maximumFractionDigits: 2})}</td>
+                        <td style="color:#0ea5e9;">฿${sales.toLocaleString('th-TH', {maximumFractionDigits: 2})}</td>
+                        <td>${soldWeight.toLocaleString('th-TH', {maximumFractionDigits: 2})} กก.</td>
+                        <td class="${profitClass} ${profitBold}">฿${estProfit.toLocaleString('th-TH', {maximumFractionDigits: 2})}</td>
+                    </tr>
+                `;
+            });
+        } catch (err) {
+            console.error('Fish report error:', err);
+            alert('Error loading fish report');
+        }
+    }
+
+    // Add CSS helper styles
+    const style = document.createElement('style');
+    style.innerHTML = `
+        .text-green-600 { color: #10b981; }
+        .text-red-600 { color: #ef4444; }
+        .text-blue-600 { color: #2563eb; }
+        .font-bold { font-weight: bold; }
+    `;
+    document.head.appendChild(style);
+
+    // Load initial data
+    loadProducts();
+</script>
+
+</body>
+</html>

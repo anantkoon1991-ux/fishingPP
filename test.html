@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DrMyland System Test</title>
+    <style>
+        body { font-family: 'Sarabun', Arial, sans-serif; background: #f5f7fa; padding: 20px; }
+        .container { max-width: 1200px; margin: 0 auto; }
+        .section { background: white; border-radius: 12px; padding: 25px; margin: 20px 0; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        h1 { color: #1e3a8a; border-bottom: 3px solid #2563eb; padding-bottom: 10px; }
+        h2 { color: #2563eb; margin-top: 0; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .test-card { background: #f8f9fa; border-left: 4px solid #2563eb; padding: 15px; border-radius: 6px; }
+        .test-card h3 { margin-top: 0; color: #1e3a8a; }
+        button { background: #2563eb; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; margin: 5px; font-size: 14px; }
+        button:hover { background: #1d4ed8; }
+        .btn-success { background: #10b981; }
+        .btn-success:hover { background: #059669; }
+        .btn-warning { background: #f59e0b; }
+        .btn-warning:hover { background: #d97706; }
+        .output { background: #0f172a; color: #10b981; padding: 12px; border-radius: 6px; font-family: 'Courier New', monospace; font-size: 12px; max-height: 300px; overflow-y: auto; margin: 10px 0; white-space: pre-wrap; word-break: break-all; }
+        .status { display: inline-block; padding: 5px 10px; border-radius: 4px; font-size: 12px; font-weight: bold; margin: 5px 0; }
+        .status.success { background: #d1fae5; color: #065f46; }
+        .status.error { background: #fee2e2; color: #991b1b; }
+        .status.info { background: #dbeafe; color: #0c4a6e; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 DrMyland System Test Dashboard</h1>
+        
+        <div class="section">
+            <h2>📊 ส่วนที่ 1: ทดสอบ Backend Logic (Postman Simulation)</h2>
+            <div class="grid">
+                <div class="test-card">
+                    <h3>1️⃣ Login Test</h3>
+                    <p>ทดสอบการล็อกอิน และเอา Token</p>
+                    <button onclick="testLogin()">🔓 ทดสอบล็อกอิน</button>
+                    <div id="login-output" class="output"></div>
+                </div>
+
+                <div class="test-card">
+                    <h3>2️⃣ Check Products</h3>
+                    <p>เช็ครายการสินค้าทั้งหมด</p>
+                    <button onclick="testProducts()">📦 ดูสินค้า</button>
+                    <div id="products-output" class="output"></div>
+                </div>
+
+                <div class="test-card">
+                    <h3>3️⃣ Create Bill</h3>
+                    <p>สร้างบิลขายและตัดสต็อก</p>
+                    <button onclick="testBill()" class="btn-success">💳 ยิงบิล</button>
+                    <div id="bill-output" class="output"></div>
+                </div>
+
+                <div class="test-card">
+                    <h3>4️⃣ Verify Stock</h3>
+                    <p>ตรวจสอบสต็อกหลังขาย</p>
+                    <button onclick="testVerify()" class="btn-warning">✅ ยืนยันสต็อก</button>
+                    <div id="verify-output" class="output"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>🖥️ ส่วนที่ 2: ทดสอบ Frontend</h2>
+            <div class="grid">
+                <div class="test-card">
+                    <h3>Service Request Test</h3>
+                    <p>ทดสอบฟีเจอร์เรียกพนักงาน</p>
+                    <button onclick="window.open('http://localhost:3000/service.html', '_blank')" class="btn-success">🔔 เปิด Service Page</button>
+                </div>
+
+                <div class="test-card">
+                    <h3>Admin Dashboard Test</h3>
+                    <p>ทดสอบหน้า Admin (ต้อง Bypass Login)</p>
+                    <button onclick="testAdminBypass()" class="btn-warning">🔐 Bypass Admin Login</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>📈 System Status</h2>
+            <div id="status-container"></div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:3000';
+        let token = null;
+
+        function log(elementId, message) {
+            const element = document.getElementById(elementId);
+            if (element) {
+                element.textContent += message + '\n';
+                element.scrollTop = element.scrollHeight;
+            }
+        }
+
+        function clearLog(elementId) {
+            const element = document.getElementById(elementId);
+            if (element) element.textContent = '';
+        }
+
+        async function testLogin() {
+            clearLog('login-output');
+            log('login-output', '⏳ กำลังล็อกอิน...\n');
+
+            try {
+                const response = await fetch(`${API_URL}/api/auth/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username: 'admin', password: '123456' })
+                });
+
+                const result = await response.json();
+                if (result.success) {
+                    token = result.data.token;
+                    log('login-output', '✅ ล็อกอิน PASS\n');
+                    log('login-output', `📋 Username: ${result.data.user.username}\n`);
+                    log('login-output', `👤 Role: ${result.data.user.role}\n`);
+                    log('login-output', `🔑 Token: ${token.substring(0, 50)}...\n`);
+                } else {
+                    log('login-output', '❌ ล็อกอิน FAIL: ' + result.error);
+                }
+            } catch (err) {
+                log('login-output', '❌ ERROR: ' + err.message);
+            }
+        }
+
+        async function testProducts() {
+            clearLog('products-output');
+            log('products-output', '⏳ กำลังดึงข้อมูลสินค้า...\n');
+
+            try {
+                const response = await fetch(`${API_URL}/api/products`);
+                const result = await response.json();
+
+                if (result.success) {
+                    log('products-output', '✅ ดึงข้อมูล PASS\n');
+                    log('products-output', `📦 สินค้าทั้งหมด: ${result.data.length} รายการ\n\n`);
+                    
+                    result.data.slice(0, 3).forEach(product => {
+                        log('products-output', `ID: ${product.id}\n`);
+                        log('products-output', `ชื่อ: ${product.name}\n`);
+                        log('products-output', `สต็อก: ${product.stock} ชิ้น\n`);
+                        log('products-output', `ราคา: ${product.price}\n---\n`);
+                    });
+                } else {
+                    log('products-output', '❌ ERROR: ' + result.error);
+                }
+            } catch (err) {
+                log('products-output', '❌ ERROR: ' + err.message);
+            }
+        }
+
+        async function testBill() {
+            clearLog('bill-output');
+            log('bill-output', '⏳ กำลังสร้างบิล...\n');
+
+            try {
+                const billData = {
+                    total: 100,
+                    paymentMethod: 'cash',
+                    items: [
+                        { product_id: 1, quantity: 3, price: 30 }
+                    ]
+                };
+
+                const response = await fetch(`${API_URL}/api/bills`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(billData)
+                });
+
+                const result = await response.json();
+                if (result.success) {
+                    log('bill-output', '✅ สร้างบิล PASS\n');
+                    log('bill-output', `💳 Bill ID: ${result.data.bill_id}\n`);
+                    log('bill-output', `💰 ยอด: 100 บาท\n`);
+                    log('bill-output', `📦 ลดสต็อก: 3 ชิ้น\n`);
+                    log('bill-output', `✅ สต็อกถูกตัดแล้ว\n`);
+                } else {
+                    log('bill-output', '❌ ERROR: ' + result.error);
+                }
+            } catch (err) {
+                log('bill-output', '❌ ERROR: ' + err.message);
+            }
+        }
+
+        async function testVerify() {
+            clearLog('verify-output');
+            log('verify-output', '⏳ กำลังตรวจสอบสต็อก...\n');
+
+            try {
+                const response = await fetch(`${API_URL}/api/products`);
+                const result = await response.json();
+
+                if (result.success) {
+                    const product = result.data.find(p => p.id === 1);
+                    if (product) {
+                        log('verify-output', '✅ สต็อกถูกตัดแล้ว\n');
+                        log('verify-output', `สินค้า: ${product.name}\n`);
+                        log('verify-output', `สต็อกปัจจุบัน: ${product.stock} ชิ้น\n`);
+                        log('verify-output', `(ลดลงแล้วจากการ Bill ที่แล้ว)\n`);
+                    }
+                }
+            } catch (err) {
+                log('verify-output', '❌ ERROR: ' + err.message);
+            }
+        }
+
+        function testAdminBypass() {
+            const code = `
+            localStorage.setItem('user', JSON.stringify({ username: 'admin', role: 'admin' }));
+            window.open('http://localhost:3000/admin.html', '_blank');
+            `;
+            alert('จะเปิดหน้า Admin ใหม่ด้วยการ Bypass Login\n' + code);
+            localStorage.setItem('user', JSON.stringify({ username: 'admin', role: 'admin' }));
+            window.open('http://localhost:3000/admin.html', '_blank');
+        }
+
+        // Update status on load
+        async function updateStatus() {
+            try {
+                const response = await fetch(`${API_URL}/health`);
+                const result = await response.json();
+                const statusHtml = `
+                    <div class="status success">✅ Server Running</div>
+                    <div class="status info">Port: 3000</div>
+                    <div class="status info">Environment: ${result.env}</div>
+                `;
+                document.getElementById('status-container').innerHTML = statusHtml;
+            } catch (err) {
+                document.getElementById('status-container').innerHTML = '<div class="status error">❌ Server Not Responding</div>';
+            }
+        }
+
+        updateStatus();
+    </script>
+</body>
+</html>

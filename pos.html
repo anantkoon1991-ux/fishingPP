@@ -1,0 +1,1169 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <title>POS System - Dr.Myland</title>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body { 
+            font-family: 'Sarabun', sans-serif; 
+            margin: 0; 
+            background: #f1f5f9; 
+            display: flex; 
+            height: 100vh; 
+            overflow: hidden; 
+        }
+        
+        /* Left: Product Grid */
+        .product-section { 
+            flex: 1; 
+            padding: 20px; 
+            overflow-y: auto; 
+            background: #f8fafc;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            gap: 15px;
+        }
+
+        .section-title {
+            font-size: 1.6em;
+            color: #1e293b;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 0;
+        }
+
+        .header-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-header {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-family: 'Sarabun', sans-serif;
+            font-size: 0.9em;
+            font-weight: 600;
+            transition: 0.2s;
+            white-space: nowrap;
+        }
+
+        .btn-refund {
+            background: #f59e0b;
+            color: white;
+        }
+
+        .btn-refund:hover {
+            background: #d97706;
+        }
+
+        .btn-history {
+            background: #64748b;
+            color: white;
+        }
+
+        .btn-history:hover {
+            background: #475569;
+        }
+
+        .grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); 
+            gap: 10px; 
+            padding-bottom: 50px;
+        }
+
+        .card { 
+            background: white; 
+            border-radius: 10px; 
+            padding: 10px; 
+            text-align: center; 
+            cursor: pointer; 
+            transition: 0.2s; 
+            border: 1px solid #e2e8f0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 150px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            position: relative;
+        }
+
+        .card:hover { 
+            transform: translateY(-3px); 
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05); 
+            border-color: #3b82f6; 
+        }
+
+        .card:active {
+            transform: scale(0.98);
+        }
+
+        .card.disabled {
+            opacity: 0.5;
+            pointer-events: none;
+            filter: grayscale(100%);
+        }
+
+        .card-icon {
+            font-size: 2.5em;
+            margin-bottom: 5px;
+        }
+
+        .card h4 { 
+            font-size: 0.95em; 
+            margin: 5px 0; 
+            color: #334155;
+            font-weight: 600;
+            line-height: 1.2;
+            height: 40px;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .card .price { 
+            color: #2563eb; 
+            font-weight: 700; 
+            font-size: 1.1em;
+            margin: 5px 0;
+        }
+
+        .card .stock { 
+            font-size: 0.75em; 
+            color: #64748b;
+            padding-top: 5px;
+            border-top: 1px solid #e2e8f0;
+            width: 100%;
+            margin-top: 8px;
+        }
+
+        .card-rent {
+            border-color: #f59e0b;
+            background: #fffbeb;
+        }
+
+        .category-tabs { 
+            margin-bottom: 20px; 
+            display: flex; 
+            gap: 8px;
+            overflow-x: auto; 
+            padding-bottom: 10px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .tab { 
+            padding: 8px 12px; 
+            background: white; 
+            border: 1px solid #cbd5e1; 
+            border-radius: 6px;
+            cursor: pointer; 
+            font-weight: 500;
+            white-space: nowrap;
+            transition: 0.2s;
+            font-size: 0.9em;
+        }
+
+        .tab:hover {
+            border-color: #2563eb;
+            background: #f0f7ff;
+        }
+
+        .tab.active { 
+            background: #2563eb; 
+            color: white; 
+            border-color: #2563eb; 
+        }
+
+        .tab i { margin-right: 5px; }
+
+        /* Custom Panel */
+        .custom-panel { 
+            background: white; 
+            padding: 15px; 
+            border-radius: 10px; 
+            margin-bottom: 15px; 
+            border: 1px solid #e2e8f0; 
+            display: none; 
+        }
+
+        .custom-panel.active { 
+            display: block; 
+        }
+
+        .custom-panel h4 {
+            margin: 0 0 15px 0;
+            color: #1e293b;
+            font-size: 1.1em;
+        }
+
+        .input-row { 
+            display: flex; 
+            gap: 10px; 
+            margin-bottom: 10px; 
+            flex-wrap: wrap;
+        }
+
+        .input-row input, 
+        .input-row select { 
+            flex: 1; 
+            min-width: 150px;
+            padding: 10px; 
+            border: 1px solid #cbd5e1; 
+            border-radius: 6px;
+            font-family: 'Sarabun', sans-serif;
+            font-size: 0.95em;
+        }
+
+        .input-row button {
+            padding: 10px 20px;
+            background: #059669;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            font-family: 'Sarabun', sans-serif;
+            transition: 0.2s;
+            white-space: nowrap;
+        }
+
+        .input-row button:hover {
+            background: #047857;
+        }
+
+        /* Right: Cart */
+        .cart-section { 
+            width: 380px; 
+            background: white; 
+            display: flex; 
+            flex-direction: column; 
+            border-left: 1px solid #e2e8f0;
+        }
+
+        .cart-header { 
+            padding: 15px; 
+            background: #1e293b; 
+            color: white; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center;
+        }
+
+        .cart-header h3 {
+            margin: 0;
+            font-size: 1.1em;
+        }
+
+        .cart-items { 
+            flex: 1; 
+            overflow-y: auto; 
+            padding: 10px; 
+        }
+
+        .empty-cart-message {
+            text-align: center;
+            color: #94a3b8;
+            margin-top: 30px;
+            font-size: 0.9em;
+        }
+
+        .cart-item { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            padding: 8px 0; 
+            border-bottom: 1px solid #f1f5f9;
+            gap: 8px;
+        }
+
+        .item-info{
+            flex: 1;
+            min-width: 0;
+        }
+
+        .item-name { 
+            font-weight: 600; 
+            font-size: 0.9em;
+            color: #1e293b;
+            word-break: break-word;
+        }
+
+        .item-price { 
+            font-size: 0.75em; 
+            color: #64748b;
+            margin-top: 3px;
+        }
+
+        .item-controls { 
+            display: flex; 
+            align-items: center; 
+            gap: 5px;
+        }
+
+        .btn-qty { 
+            width: 24px; 
+            height: 24px; 
+            border-radius: 50%; 
+            border: 1px solid #cbd5e1; 
+            background: white; 
+            cursor: pointer;
+            font-size: 0.8em;
+            transition: 0.2s;
+        }
+
+        .btn-qty:hover {
+            background: #2563eb;
+            color: white;
+            border-color: #2563eb;
+        }
+
+        .item-qty {
+            font-weight: 700;
+            width: 20px;
+            text-align: center;
+        }
+
+        .item-total { 
+            width: 50px; 
+            text-align: right; 
+            font-weight: 700;
+            color: #2563eb;
+            font-size: 0.9em;
+        }
+
+        .btn-remove {
+            width: 24px;
+            height: 24px;
+            border: none;
+            background: #fee2e2;
+            color: #dc2626;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 0.75em;
+            transition: 0.2s;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn-remove:hover {
+            background: #dc2626;
+            color: white;
+        }
+
+        /* Refund Section */
+        .refund-section { 
+            margin-bottom: 15px; 
+            padding: 10px; 
+            background: #fff7ed; 
+            border: 1px dashed #f97316; 
+            border-radius: 8px; 
+        }
+
+        .refund-section h5 {
+            margin: 0 0 8px 0;
+            color: #c2410c;
+            font-size: 0.85em;
+            font-weight: bold;
+        }
+
+        .refund-section select {
+            width: 100%;
+            padding: 6px;
+            margin-bottom: 8px;
+            border: 1px solid #fed7aa;
+            border-radius: 4px;
+            font-family: 'Sarabun', sans-serif;
+            font-size: 0.85em;
+        }
+
+        .btn-return { 
+            width: 100%; 
+            padding: 8px; 
+            background: #f97316; 
+            color: white; 
+            border: none; 
+            border-radius: 5px; 
+            cursor: pointer;
+            font-family: 'Sarabun', sans-serif;
+            font-size: 0.85em;
+            font-weight: bold;
+            transition: 0.2s;
+        }
+
+        .btn-return:hover {
+            background: #ea580c;
+        }
+
+        .cart-footer { 
+            padding: 15px; 
+            background: #f8fafc; 
+            border-top: 2px solid #e2e8f0; 
+        }
+
+        .total-row { 
+            display: flex; 
+            justify-content: space-between; 
+            font-size: 1.4em; 
+            font-weight: 700; 
+            margin-bottom: 10px; 
+            color: #1e3a8a; 
+        }
+
+        .btn-pay { 
+            width: 100%; 
+            padding: 12px; 
+            background: #10b981; 
+            color: white; 
+            border: none; 
+            border-radius: 8px; 
+            font-size: 1em; 
+            font-weight: 700; 
+            cursor: pointer;
+            font-family: 'Sarabun', sans-serif;
+            transition: 0.2s;
+        }
+
+        .btn-pay:hover:not(:disabled) { 
+            background: #059669;
+            transform: translateY(-2px);
+        }
+
+        .btn-pay:disabled { 
+            background: #cbd5e1; 
+            cursor: not-allowed;
+        }
+
+        /* Modal Styles */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 500px;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+
+        .modal-content h3 {
+            margin-top: 0;
+            color: #1e293b;
+        }
+
+        .bill-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            border-bottom: 1px solid #e2e8f0;
+            gap: 10px;
+        }
+
+        .bill-info {
+            flex: 1;
+        }
+
+        .bill-id {
+            font-weight: bold;
+            color: #1e293b;
+        }
+
+        .bill-time {
+            font-size: 0.85em;
+            color: #64748b;
+        }
+
+        .bill-note {
+            font-size: 0.8em;
+            color: #94a3b8;
+            margin-top: 3px;
+        }
+
+        .bill-amount {
+            font-weight: bold;
+            color: #059669;
+            font-size: 1.05em;
+        }
+
+        .bill-void {
+            color: #dc2626;
+            font-size: 0.8em;
+            opacity: 0.7;
+        }
+
+        .btn-modal {
+            padding: 8px 12px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-family: 'Sarabun', sans-serif;
+            font-size: 0.85em;
+            transition: 0.2s;
+        }
+
+        .btn-modal-danger {
+            background: #ef4444;
+            color: white;
+        }
+
+        .btn-modal-danger:hover {
+            background: #dc2626;
+        }
+
+        .btn-modal-primary {
+            background: #2563eb;
+            color: white;
+            width: 100%;
+            padding: 12px;
+            margin-top: 10px;
+        }
+
+        .btn-modal-primary:hover {
+            background: #1d4ed8;
+        }
+
+        .btn-modal-secondary {
+            background: #e2e8f0;
+            color: #475569;
+            width: 100%;
+            margin-top: 8px;
+        }
+
+        .btn-modal-secondary:hover {
+            background: #cbd5e1;
+        }
+
+        .modal-input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            margin-bottom: 10px;
+            font-family: 'Sarabun', sans-serif;
+            box-sizing: border-box;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 12px 20px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            z-index: 1100;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        .notification.success {
+            border-left: 4px solid #10b981;
+        }
+
+        .notification.error {
+            border-left: 4px solid #dc2626;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .fish-info {
+            background: #f0fdf4;
+            padding: 10px;
+            border-radius: 6px;
+            margin: 10px 0;
+            font-size: 0.9em;
+            border-left: 3px solid #10b981;
+        }
+
+    </style>
+    <script src="config.js"></script>
+</head>
+<body>
+
+    <div class="product-section">
+        <div class="section-header">
+            <h2 class="section-title">
+                <i class="fas fa-store"></i> ร้านค้า Dr.Myland
+            </h2>
+            <div class="header-buttons">
+                <button class="btn-header btn-refund" onclick="openRefundModal()">
+                    <i class="fas fa-undo"></i> คืนมัดจำ
+                </button>
+                <button class="btn-header btn-history" onclick="openHistoryModal()">
+                    <i class="fas fa-history"></i> ประวัติ/ยกเลิก
+                </button>
+            </div>
+        </div>
+
+        <div class="category-tabs" id="categoryTabs">
+            <div class="tab active" onclick="setTab('all')"><i class="fas fa-th"></i> ทั้งหมด</div>
+            <div class="tab" onclick="setTab('rental')"><i class="fas fa-tools"></i> เช่า/ยืม</div>
+            <div class="tab" onclick="setTab('bait')"><i class="fas fa-worm"></i> เหยื่อ/อุปกรณ์</div>
+            <div class="tab" onclick="setTab('drink')"><i class="fas fa-glass-cheers"></i> เครื่องดื่ม</div>
+            <div class="tab" onclick="setTab('custom')"><i class="fas fa-keyboard"></i> คีย์เอง</div>
+            <div class="tab" onclick="setTab('fish_out')"><i class="fas fa-fish"></i> ขายปลาออก</div>
+        </div>
+
+        <div id="panel-custom" class="custom-panel">
+            <h4>⌨️ คีย์รายการสินค้าเอง (ไม่มีในระบบ)</h4>
+            <div class="input-row">
+                <input type="text" id="custName" placeholder="ชื่อสินค้า">
+                <input type="number" id="custPrice" placeholder="ราคา (บาท)">
+                <button onclick="addCustomItem()">เพิ่ม</button>
+            </div>
+        </div>
+
+        <div id="panel-fish_out" class="custom-panel">
+            <h4>🐟 ขายปลาออก (ชั่งกิโล)</h4>
+            <div class="input-row">
+                <select id="fishType">
+                    <option value="">-- เลือกชนิดปลา --</option>
+                </select>
+            </div>
+            <div class="input-row">
+                <input type="number" id="fishWeight" placeholder="น้ำหนัก (กก.)" step="0.1">
+                <input type="number" id="fishPricePerKg" placeholder="ราคา/กก.">
+            </div>
+            <div class="input-row">
+                <input type="text" id="fishNote" placeholder="หมายเหตุ (ลูกค้า/สระ)">
+                <button onclick="addFishItem()">คำนวณ</button>
+            </div>
+            <div id="fishCalc"></div>
+        </div>
+
+        <div id="grid-products" class="grid"></div>
+    </div>
+
+    <div class="cart-section">
+        <div class="cart-header">
+            <h3><i class="fas fa-shopping-cart"></i> รายการขาย</h3>
+            <span id="itemCount" style="background: rgba(255,255,255,0.2); padding: 4px 8px; border-radius: 4px; font-size: 0.85em;">0</span>
+        </div>
+        <div class="cart-items" id="cartItems">
+            <div class="empty-cart-message">
+                <i class="fas fa-inbox" style="font-size: 2em; display: block; margin-bottom: 10px; color: #cbd5e1;"></i>
+                ยังไม่มีสินค้า
+            </div>
+        </div>
+        <div class="cart-footer">
+            <div class="refund-section">
+                <h5>🔄 คืนของ/คืนมัดจำ</h5>
+                <select id="returnItem">
+                    <option value="">-- เลือกรายการคืน --</option>
+                    <option value="deposit_rod">คืนมัดจำคันเบ็ด (200.-)</option>
+                    <option value="deposit_net">คืนมัดจำสวิง (50.-)</option>
+                    <option value="deposit_cage">คืนมัดจำกระชัง (100.-)</option>
+                </select>
+                <button class="btn-return" onclick="processReturn()">บันทึกคืนของ</button>
+            </div>
+
+            <div class="total-row" style="margin-top: 15px;">
+                <span>รวมทั้งสิ้น</span>
+                <span id="totalPrice">฿0</span>
+            </div>
+            <button class="btn-pay" id="btnPay" onclick="checkout()" disabled>
+                <i class="fas fa-cash-register"></i> ชำระเงิน (Spacebar)
+            </button>
+        </div>
+    </div>
+
+    <script>
+        let allProducts = [];
+        let allFish = [];
+        let cart = [];
+        let currentTab = 'all';
+        const token = localStorage.getItem('token');
+        const user = JSON.parse(localStorage.getItem('user') || '{}');
+
+        if (!token || !user.id) {
+            window.location.href = 'login.html';
+        }
+
+        // Init
+        async function init() {
+            try {
+                // โหลดสินค้า
+                const resProd = await AppConfig.fetch('/api/products');
+                const dataProd = await resProd.json();
+                allProducts = Array.isArray(dataProd) ? dataProd : (dataProd.data || dataProd.products || []);
+
+                // เพิ่มรายการเช่า Hardcoded
+                const rentalItems = [
+                    { id: 'r1', name: 'เช่าเบ็ด+มัดจำ', price: 300, category: 'rental', stock: 10, is_rental: true },
+                    { id: 'r2', name: 'มัดจำสวิง', price: 50, category: 'rental', stock: 20, is_rental: true },
+                    { id: 'r3', name: 'มัดจำกระชัง', price: 100, category: 'rental', stock: 15, is_rental: true }
+                ];
+                allProducts.unshift(...rentalItems);
+
+                // โหลดปลา
+                const resFish = await AppConfig.fetch('/api/fish');
+                allFish = await resFish.json();
+                const fishSel = document.getElementById('fishType');
+                allFish.forEach(f => {
+                    const option = document.createElement('option');
+                    option.value = f.id;
+                    option.textContent = f.name_th || f.name;
+                    option.dataset.name = f.name_th || f.name;
+                    fishSel.appendChild(option);
+                });
+
+                renderGrid();
+            } catch (err) {
+                console.error('Init error:', err);
+                showNotification('โหลดข้อมูลไม่สำเร็จ', 'error');
+            }
+        }
+
+        // Tabs
+        function setTab(tab) {
+            currentTab = tab;
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            event.target.closest('.tab').classList.add('active');
+
+            document.getElementById('panel-custom').classList.remove('active');
+            document.getElementById('panel-fish_out').classList.remove('active');
+            document.getElementById('grid-products').style.display = 'grid';
+
+            if(tab === 'custom') {
+                document.getElementById('panel-custom').classList.add('active');
+                document.getElementById('grid-products').style.display = 'none';
+            } else if(tab === 'fish_out') {
+                document.getElementById('panel-fish_out').classList.add('active');
+                document.getElementById('grid-products').style.display = 'none';
+            } else {
+                renderGrid();
+            }
+        }
+
+        function renderGrid() {
+            const grid = document.getElementById('grid-products');
+            grid.innerHTML = '';
+
+            let filtered = allProducts;
+            if(currentTab === 'all') filtered = allProducts.filter(p => p.category !== 'rental');
+            else if(currentTab === 'rental') filtered = allProducts.filter(p => p.category === 'rental');
+            else if(currentTab === 'bait') filtered = allProducts.filter(p => p.category === 'bait');
+            else if(currentTab === 'drink') filtered = allProducts.filter(p => p.category === 'drink' || p.category === 'beverage');
+
+            if(filtered.length === 0) {
+                grid.innerHTML = '<div style="grid-column:1/-1; text-align:center; color:#999; padding:40px;">ไม่มีสินค้าในหมวดนี้</div>';
+                return;
+            }
+
+            filtered.forEach(p => {
+                const cardClass = p.category === 'rental' ? 'card card-rent' : 'card';
+                const stockText = p.stock > 0 ? `✓ คงเหลือ: ${p.stock}` : '✗ หมด';
+                
+                const el = document.createElement('div');
+                el.className = cardClass;
+                if(p.stock <= 0) el.classList.add('disabled');
+                el.innerHTML = `
+                    <div class="card-icon">${getCategoryIcon(p.category)}</div>
+                    <h4>${p.name}</h4>
+                    <div class="price">฿${parseFloat(p.price).toFixed(0)}</div>
+                    <div class="stock">${stockText}</div>
+                `;
+                el.onclick = () => {
+                    if(p.stock > 0) addToCart(p);
+                };
+                grid.appendChild(el);
+            });
+        }
+
+        function getCategoryIcon(category) {
+            const icons = {
+                'rental': '🔧',
+                'bait': '🪱',
+                'drink': '🥤',
+                'beverage': '🥤',
+                'fish_out': '🐟',
+                'default': '📦'
+            };
+            return icons[category] || icons['default'];
+        }
+
+        // Cart
+        function addToCart(p) {
+            const exist = cart.find(i => i.id === p.id);
+            if(exist) {
+                if(exist.qty < p.stock) exist.qty++;
+                else {
+                    showNotification('มีสต็อกไม่เพียงพอ', 'error');
+                    return;
+                }
+            } else {
+                cart.push({ ...p, qty: 1 });
+            }
+            renderCart();
+        }
+
+        function addCustomItem() {
+            const name = document.getElementById('custName').value;
+            const price = parseFloat(document.getElementById('custPrice').value);
+            if(!name || !price) {
+                showNotification('ใส่ข้อมูลให้ครบ', 'error');
+                return;
+            }
+            addToCart({ 
+                id: 'cust_' + Date.now(), 
+                name: `(C) ${name}`, 
+                price: price, 
+                category: 'custom', 
+                stock: 999, 
+                qty: 1 
+            });
+            document.getElementById('custName').value = '';
+            document.getElementById('custPrice').value = '';
+        }
+
+        function addFishItem() {
+            const sel = document.getElementById('fishType');
+            const fishId = sel.value;
+            const fishName = sel.options[sel.selectedIndex]?.text || '';
+            const weight = parseFloat(document.getElementById('fishWeight').value);
+            const priceKg = parseFloat(document.getElementById('fishPricePerKg').value);
+            const note = document.getElementById('fishNote').value;
+
+            if(!fishId || !weight || !priceKg) {
+                showNotification('ใส่ข้อมูลให้ครบ', 'error');
+                return;
+            }
+
+            const totalPrice = weight * priceKg;
+            const itemName = `ปลา${fishName} ${weight}kg @${priceKg}/kg${note ? ' (' + note + ')' : ''}`;
+
+            // แสดงการคำนวณ
+            const calcDiv = document.getElementById('fishCalc');
+            calcDiv.innerHTML = `
+                <div class="fish-info">
+                    <div><strong>${weight} กก. × ฿${priceKg.toFixed(2)}</strong></div>
+                    <div style="font-size:1.2em; color:#059669; margin-top:5px;"><strong>= ฿${totalPrice.toFixed(2)}</strong></div>
+                </div>
+            `;
+
+            addToCart({ 
+                id: 'fish_' + Date.now(), 
+                fish_id: fishId,        // ✅ เพิ่ม fish_id สำหรับ stock update
+                weight: weight,         // ✅ เพิ่ม weight สำหรับคำนวณต้นทุน
+                name: itemName, 
+                price: totalPrice, 
+                category: 'fish_out', 
+                stock: 999, 
+                qty: 1 
+            });
+
+            document.getElementById('fishWeight').value = '';
+            document.getElementById('fishPricePerKg').value = '';
+            document.getElementById('fishNote').value = '';
+            setTimeout(() => calcDiv.innerHTML = '', 2000);
+        }
+
+        function updateQty(id, change) {
+            const item = cart.find(i => i.id === id);
+            if(item) {
+                item.qty += change;
+                if(item.qty <= 0) cart = cart.filter(i => i.id !== id);
+                renderCart();
+            }
+        }
+
+        function removeFromCart(id) {
+            cart = cart.filter(i => i.id !== id);
+            renderCart();
+        }
+
+        function renderCart() {
+            const container = document.getElementById('cartItems');
+            const totalEl = document.getElementById('totalPrice');
+            const btnPay = document.getElementById('btnPay');
+
+            container.innerHTML = '';
+            let total = 0, count = 0;
+
+            if(cart.length === 0) {
+                container.innerHTML = '<div class="empty-cart-message"><i class="fas fa-inbox" style="font-size:2em; display:block; margin-bottom:10px; color:#cbd5e1;"></i>ยังไม่มีสินค้า</div>';
+                btnPay.disabled = true;
+                totalEl.innerText = '฿0';
+            } else {
+                cart.forEach(item => {
+                    total += item.price * item.qty;
+                    count += item.qty;
+                    const row = document.createElement('div');
+                    row.className = 'cart-item';
+                    const isRefund = item.category === 'refund';
+                    const color = isRefund ? '#dc2626' : '#1e3a8a';
+                    row.innerHTML = `
+                        <div class="item-info">
+                            <div class="item-name" style="color:${color}">${item.name}</div>
+                            <div class="item-price">@฿${Math.abs(item.price).toFixed(2)}</div>
+                        </div>
+                        <div class="item-controls">
+                            <button class="btn-qty" onclick="updateQty('${item.id}', -1)">−</button>
+                            <span class="item-qty">${item.qty}</span>
+                            <button class="btn-qty" onclick="updateQty('${item.id}', 1)">+</button>
+                            <div class="item-total" style="color:${color}">฿${(item.price * item.qty).toLocaleString('th-TH')}</div>
+                            <button class="btn-remove" onclick="removeFromCart('${item.id}')"><i class="fas fa-trash"></i></button>
+                        </div>
+                    `;
+                    container.appendChild(row);
+                });
+                btnPay.disabled = false;
+                totalEl.innerText = `฿${total.toLocaleString('th-TH')}`;
+            }
+
+            document.getElementById('itemCount').innerText = count;
+        }
+
+        function processReturn() {
+            const type = document.getElementById('returnItem').value;
+            if(!type) return;
+
+            let name = '', price = 0;
+            if(type === 'deposit_rod') { name = 'คืนมัดจำคันเบ็ด'; price = -200; }
+            else if(type === 'deposit_net') { name = 'คืนมัดจำสวิง'; price = -50; }
+            else if(type === 'deposit_cage') { name = 'คืนมัดจำกระชัง'; price = -100; }
+
+            cart.push({ 
+                id: 'refund_' + Date.now(), 
+                name: `[คืน] ${name}`, 
+                price: price, 
+                qty: 1, 
+                category: 'refund' 
+            });
+            document.getElementById('returnItem').value = '';
+            renderCart();
+            showNotification(`เพิ่ม ${name} ฿${Math.abs(price)} ลงตะกร้า`, 'success');
+        }
+
+        // Checkout
+        async function checkout() {
+            if(cart.length === 0) return;
+
+            const btn = document.getElementById('btnPay');
+            btn.innerHTML = '<span style="animation:spin 0.8s linear infinite; display:inline-block;">⏳</span> กำลังบันทึก...';
+            btn.disabled = true;
+
+            const total = cart.reduce((sum, i) => sum + (i.price * i.qty), 0);
+
+            try {
+                // ✅ บันทึกลงบิล (สำหรับสินค้าทั่วไป)
+                const res = await AppConfig.fetch('/api/bills', {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        total: total,
+                        payment_method: 'cash',
+                        items: cart.map(i => ({
+                            product_id: i.id,
+                            quantity: i.qty,
+                            price: i.price
+                        }))
+                    })
+                });
+
+                const result = await res.json();
+                if(result.success || result.bill_id) {
+                    // ✅ ตรวจสอบว่ามีปลาในตระกร้า
+                    const hasFish = cart.some(i => i.category === 'fish_out' && i.fish_id);
+                    
+                    if(hasFish) {
+                        // ✅ ส่งข้อมูลปลาไปยัง stock API เพื่อให้อัปเดต inventory
+                        try {
+                            await AppConfig.fetch('/api/stock/checkout', {
+                                method: 'POST',
+                                body: JSON.stringify({
+                                    items: cart.filter(i => i.category === 'fish_out').map(i => ({
+                                        id: i.id,
+                                        fish_id: i.fish_id,        // ✅ fish_id
+                                        weight: i.weight,          // ✅ weight
+                                        price: i.price,
+                                        category: i.category
+                                    })),
+                                    total: total,
+                                    paymentMethod: 'cash',
+                                    note: `Bill #${result.bill_id}`
+                                })
+                            });
+                        } catch(stockErr) {
+                            console.warn('Stock update warning:', stockErr);
+                            // อย่าหยุดการทำงาน แม้ว่า stock update จะผิดพลาด
+                        }
+                    }
+
+                    showNotification('✅ บันทึกสำเร็จ', 'success');
+                    cart = [];
+                    renderCart();
+                    setTimeout(() => init(), 1000);
+                } else {
+                    showNotification('❌ ' + (result.error || 'ผิดพลาด'), 'error');
+                }
+            } catch (err) {
+                showNotification('เชื่อมต่อไม่ได้', 'error');
+            } finally {
+                btn.innerHTML = '<i class="fas fa-cash-register"></i> ชำระเงิน (Spacebar)';
+                btn.disabled = cart.length === 0;
+            }
+        }
+
+        async function openHistoryModal() {
+            const modal = document.createElement('div');
+            modal.className = 'modal-overlay';
+
+            try {
+                const res = await AppConfig.fetch('/api/bills/today');
+                const data = await res.json();
+                const bills = data.data || [];
+
+                let content = '<h3 style="margin-top:0;">📜 ประวัติบิลวันนี้</h3>';
+                if(bills.length === 0) {
+                    content += '<p style="text-align:center; color:#999;">ยังไม่มีบิล</p>';
+                } else {
+                    bills.forEach(b => {
+                        const isVoid = b.status === 'void';
+                        content += `
+                            <div class="bill-row" style="${isVoid ? 'opacity:0.6' : ''}">
+                                <div class="bill-info">
+                                    <div class="bill-id">บิล #${b.id}</div>
+                                    <div class="bill-time">${new Date(b.created_at).toLocaleTimeString('th-TH')}</div>
+                                    <div class="bill-note">${b.note || '-'}</div>
+                                </div>
+                                <div style="text-align:right;">
+                                    <div class="bill-amount" style="color:${isVoid ? '#999' : '#059669'}">฿${parseFloat(b.total_price || b.amount).toFixed(2)}</div>
+                                    ${!isVoid ? `<button class="btn-modal btn-modal-danger" onclick="voidBill(${b.id})">ยกเลิก</button>` : `<span class="bill-void">ยกเลิกแล้ว</span>`}
+                                </div>
+                            </div>
+                        `;
+                    });
+                }
+
+                modal.innerHTML = `
+                    <div class="modal-content">
+                        ${content}
+                        <button class="btn-modal-secondary" onclick="this.parentElement.parentElement.remove()">ปิด</button>
+                    </div>
+                `;
+            } catch (err) {
+                modal.innerHTML = `<div class="modal-content"><h3>❌ โหลดไม่สำเร็จ</h3><button class="btn-modal-secondary" onclick="this.parentElement.parentElement.remove()">ปิด</button></div>`;
+            }
+
+            document.body.appendChild(modal);
+        }
+
+        async function voidBill(id) {
+            const reason = prompt('กรุณาระบุเหตุผล:');
+            if(!reason) return;
+
+            try {
+                const res = await AppConfig.fetch(`/api/bills/${id}/void`, {
+                    method: 'POST',
+                    body: JSON.stringify({ reason })
+                });
+
+                if(res.ok) {
+                    showNotification('ยกเลิกสำเร็จ', 'success');
+                    document.querySelectorAll('.modal-overlay').forEach(m => m.remove());
+                    openHistoryModal();
+                } else {
+                    showNotification('ยกเลิกไม่สำเร็จ', 'error');
+                }
+            } catch (err) {
+                showNotification('เกิดข้อผิดพลาด', 'error');
+            }
+        }
+
+        function openRefundModal() {
+            const modal = document.createElement('div');
+            modal.className = 'modal-overlay';
+            modal.innerHTML = `
+                <div class="modal-content">
+                    <h3>💸 คืนเงินมัดจำ</h3>
+                    <input type="number" id="refundAmount" class="modal-input" placeholder="ระบุจำนวนเงิน" min="0" step="0.01">
+                    <input type="text" id="refundNote" class="modal-input" placeholder="หมายเหตุ (เช่น คืนค่าเช่าเบ็ด)">
+                    <button class="btn-modal-primary" onclick="processRefund()">ยืนยันคืนเงิน</button>
+                    <button class="btn-modal-secondary" onclick="this.parentElement.parentElement.remove()">ยกเลิก</button>
+                </div>
+            `;
+            document.body.appendChild(modal);
+        }
+
+        async function processRefund() {
+            const amount = parseFloat(document.getElementById('refundAmount').value);
+            const note = document.getElementById('refundNote').value;
+
+            if(!amount || amount <= 0) {
+                showNotification('ระบุจำนวนให้ถูกต้อง', 'error');
+                return;
+            }
+
+            try {
+                const res = await AppConfig.fetch('/api/refund', {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        amount: -amount,
+                        description: `คืนมัดจำ: ${note || 'ไม่มี'}`
+                    })
+                });
+
+                if(res.ok) {
+                    showNotification(`คืนเงิน ฿${amount.toFixed(2)} เรียบร้อย`, 'success');
+                    document.querySelectorAll('.modal-overlay').forEach(m => m.remove());
+                } else {
+                    showNotification('คืนเงินไม่สำเร็จ', 'error');
+                }
+            } catch (err) {
+                showNotification('เกิดข้อผิดพลาด', 'error');
+            }
+        }
+
+        function showNotification(msg, type = 'success') {
+            const notif = document.createElement('div');
+            notif.className = `notification ${type}`;
+            notif.innerHTML = `<i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'}"></i> ${msg}`;
+            document.body.appendChild(notif);
+            setTimeout(() => notif.remove(), 3000);
+        }
+
+        // Keyboard shortcut
+        document.addEventListener('keydown', (e) => {
+            if(e.code === 'Space' && !document.getElementById('btnPay').disabled) {
+                e.preventDefault();
+                checkout();
+            }
+        });
+
+        init();
+    </script>
+</body>
+</html>

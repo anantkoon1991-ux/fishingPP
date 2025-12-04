@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fish Log - Dr.Myland</title>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body { 
+            font-family: 'Sarabun', sans-serif; 
+            background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%); 
+            padding: 20px; 
+            max-width: 600px; 
+            margin: 0 auto;
+            min-height: 100vh;
+        }
+
+        .card { 
+            background: white; 
+            padding: 24px; 
+            border-radius: 15px; 
+            box-shadow: 0 8px 16px rgba(0,0,0,0.1); 
+            margin-bottom: 20px; 
+        }
+
+        h2 { 
+            color: #065f46; 
+            margin-top: 0; 
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.5em;
+            margin-bottom: 20px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #e5e7eb;
+        }
+
+        .header-right {
+            text-align: right;
+            font-size: 0.9em;
+        }
+
+        .header-right strong {
+            display: block;
+            color: #1e293b;
+        }
+
+        .header-right span {
+            color: #64748b;
+        }
+
+        .section-title {
+            font-size: 1.1em;
+            font-weight: 700;
+            color: #065f46;
+            margin: 20px 0 15px 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .fish-grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); 
+            gap: 12px; 
+            margin-bottom: 20px; 
+        }
+
+        .fish-btn { 
+            padding: 16px 12px; 
+            border: 2px solid #d1fae5; 
+            background: white; 
+            border-radius: 12px; 
+            cursor: pointer; 
+            text-align: center; 
+            font-weight: 600; 
+            color: #064e3b; 
+            transition: all 0.2s ease;
+            font-size: 0.95em;
+        }
+
+        .fish-btn:hover {
+            border-color: #10b981;
+            background: #f0fdf4;
+            transform: translateY(-2px);
+        }
+
+        .fish-btn.active { 
+            background: #10b981; 
+            color: white; 
+            border-color: #10b981;
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+        }
+
+        .fish-btn i { 
+            display: block; 
+            font-size: 1.8em; 
+            margin-bottom: 8px; 
+        }
+
+        .input-group { 
+            margin-bottom: 18px; 
+        }
+
+        .input-group label { 
+            display: block; 
+            margin-bottom: 8px; 
+            font-weight: 700; 
+            color: #334155;
+            font-size: 0.95em;
+        }
+
+        .input-group input { 
+            width: 100%; 
+            padding: 14px 16px; 
+            font-size: 1.1em; 
+            border: 2px solid #e5e7eb; 
+            border-radius: 10px; 
+            box-sizing: border-box; 
+            text-align: center;
+            font-family: 'Sarabun', sans-serif;
+            transition: border-color 0.2s;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: #10b981;
+            background: #f0fdf4;
+        }
+
+        .input-group input::placeholder {
+            color: #cbd5e1;
+        }
+        
+        .action-btns { 
+            display: flex; 
+            gap: 12px; 
+        }
+
+        .btn-action { 
+            flex: 1; 
+            padding: 16px 20px; 
+            border: none; 
+            border-radius: 12px; 
+            font-size: 1em; 
+            cursor: pointer; 
+            color: white; 
+            font-weight: 700;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-family: 'Sarabun', sans-serif;
+        }
+
+        .btn-action:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+        }
+
+        .btn-action:active {
+            transform: translateY(-1px);
+        }
+
+        .btn-release { 
+            background: linear-gradient(135deg, #3b82f6, #2563eb); 
+        }
+
+        .btn-keep { 
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+        }
+
+        .btn-action i {
+            font-size: 1.2em;
+        }
+
+        .log-list { 
+            list-style: none; 
+            padding: 0; 
+        }
+
+        .log-item { 
+            background: white; 
+            padding: 16px; 
+            border-radius: 12px; 
+            margin-bottom: 12px; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            border-left: 5px solid #10b981;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            transition: all 0.2s;
+        }
+
+        .log-item:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            transform: translateX(5px);
+        }
+
+        .log-item.kept { 
+            border-left-color: #ef4444; 
+        }
+
+        .log-item-left {
+            flex: 1;
+        }
+
+        .log-item-name {
+            font-weight: 700;
+            color: #1e293b;
+            font-size: 1.05em;
+            margin-bottom: 5px;
+        }
+
+        .log-item-time {
+            font-size: 0.8em;
+            color: #64748b;
+        }
+
+        .log-item-right {
+            text-align: right;
+        }
+
+        .log-item-weight {
+            font-size: 1.2em;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 3px;
+        }
+
+        .log-item-action {
+            font-size: 0.8em;
+            color: #2563eb;
+            font-weight: 600;
+        }
+
+        .log-item.kept .log-item-action {
+            color: #ef4444;
+        }
+
+        .log-item-delete {
+            margin-left: 12px;
+            padding: 6px 10px;
+            background: #fee2e2;
+            color: #991b1b;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.8em;
+            font-weight: 600;
+            transition: 0.2s;
+        }
+
+        .log-item-delete:hover {
+            background: #fca5a5;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #94a3b8;
+        }
+
+        .empty-state i {
+            font-size: 3em;
+            margin-bottom: 15px;
+            opacity: 0.3;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-top: 15px;
+        }
+
+        .stat-box {
+            background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+            padding: 16px;
+            border-radius: 10px;
+            border-left: 4px solid #10b981;
+            text-align: center;
+        }
+
+        .stat-box.kept {
+            background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+            border-left-color: #ef4444;
+        }
+
+        .stat-label {
+            font-size: 0.85em;
+            color: #64748b;
+            margin-bottom: 5px;
+        }
+
+        .stat-value {
+            font-size: 1.4em;
+            font-weight: 700;
+            color: #065f46;
+        }
+
+        .stat-box.kept .stat-value {
+            color: #991b1b;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            font-weight: 600;
+            margin-top: 8px;
+        }
+
+        .badge-released {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .badge-kept {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .auth-alert {
+            background: #fee2e2;
+            color: #991b1b;
+            padding: 16px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 3px solid #e5e7eb;
+            border-top-color: #10b981;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin: 0 5px;
+            vertical-align: middle;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 600px) {
+            body { padding: 15px; }
+            .card { padding: 16px; }
+            h2 { font-size: 1.3em; }
+            .fish-grid { grid-template-columns: repeat(2, 1fr); }
+            .action-btns { flex-direction: column; }
+        }
+    </style>
+    <script src="config.js"></script>
+</head>
+<body>
+
+    <div class="card">
+        <div class="header">
+            <h2><i class="fas fa-fish"></i> บันทึกการตกปลา</h2>
+            <div class="header-right">
+                <strong id="userName">User</strong>
+                <span id="userRole">Staff</span>
+                <button onclick="logout()" style="margin-top: 8px; padding: 6px 12px; background: #ef4444; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.85em;">ออกจากระบบ</button>
+            </div>
+        </div>
+
+        <div id="authAlert"></div>
+        
+        <div class="section-title">
+            <i class="fas fa-filter"></i> เลือกชนิดปลา
+        </div>
+        <div class="fish-grid" id="fishOptions">
+            <div style="grid-column:1/-1; text-align:center; padding: 30px; color: #94a3b8;">
+                <span class="loading-spinner"></span> กำลังโหลดข้อมูล...
+            </div>
+        </div>
+
+        <div class="section-title">
+            <i class="fas fa-weight"></i> ข้อมูลการบันทึก
+        </div>
+
+        <div class="input-group">
+            <label>น้ำหนัก (กิโลกรัม)</label>
+            <input type="number" id="weightInput" step="0.1" placeholder="0.0" min="0">
+        </div>
+
+        <div class="input-group">
+            <label>หมายเหตุ (ถ้ามี)</label>
+            <input type="text" id="noteInput" placeholder="เช่น มีแผลเล็กน้อย, คุณภาพดี">
+        </div>
+
+        <div class="section-title">
+            <i class="fas fa-check"></i> เลือกการกระทำ
+        </div>
+
+        <div class="action-btns">
+            <button class="btn-action btn-release" onclick="saveLog('released')">
+                <i class="fas fa-water"></i> ปล่อยคืนบ่อ
+            </button>
+            <button class="btn-action btn-keep" onclick="saveLog('kept')">
+                <i class="fas fa-shopping-basket"></i> ซื้อออก/นำกลับ
+            </button>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2><i class="fas fa-history"></i> ประวัติการบันทึก</h2>
+        
+        <div class="stats-grid">
+            <div class="stat-box">
+                <div class="stat-label">ปล่อยคืน</div>
+                <div class="stat-value" id="statsReleased">0</div>
+                <div style="font-size: 0.8em; color: #64748b; margin-top: 5px;" id="statsReleasedWeight">0 kg</div>
+            </div>
+            <div class="stat-box kept">
+                <div class="stat-label">ซื้อออก</div>
+                <div class="stat-value" id="statsKept">0</div>
+                <div style="font-size: 0.8em; color: #64748b; margin-top: 5px;" id="statsKeptWeight">0 kg</div>
+            </div>
+        </div>
+
+        <ul class="log-list" id="logHistory"></ul>
+    </div>
+
+    <script>
+        let selectedFishId = null;
+        let selectedFishName = null;
+        const token = localStorage.getItem('token');
+
+        // Check authentication
+        if (!token) {
+            document.getElementById('authAlert').innerHTML = `
+                <div class="auth-alert">
+                    <i class="fas fa-lock"></i> กรุณาเข้าสู่ระบบก่อน
+                    <br><a href="login.html" style="color: inherit; text-decoration: underline;">คลิกเพื่อไปยังหน้า Login</a>
+                </div>
+            `;
+        } else {
+            loadUserInfo();
+        }
+
+        // Load user information
+        function loadUserInfo() {
+            try {
+                const userData = localStorage.getItem('user');
+                if (userData) {
+                    const user = JSON.parse(userData);
+                    document.getElementById('userName').textContent = user.username || 'User';
+                    document.getElementById('userRole').textContent = (user.role === 'admin' ? 'Admin' : user.role === 'manager' ? 'Manager' : 'Staff');
+                }
+            } catch (e) {
+                console.error('Error loading user info:', e);
+            }
+        }
+
+        // 1. โหลดรายชื่อปลา
+        async function loadFishSpecies() {
+            try {
+                const res = await AppConfig.fetch('/api/fish');
+                
+                if (!res.ok) throw new Error('Failed to load fish species');
+                
+                const data = await res.json();
+                const list = Array.isArray(data) ? data : data.data || [];
+
+                const container = document.getElementById('fishOptions');
+                container.innerHTML = '';
+                
+                if (list.length === 0) {
+                    container.innerHTML = '<div style="grid-column:1/-1; text-align:center; color: #94a3b8; padding: 20px;">ไม่มีข้อมูลปลา</div>';
+                    return;
+                }
+
+                list.forEach(fish => {
+                    const btn = document.createElement('div');
+                    btn.className = 'fish-btn';
+                    btn.innerHTML = `<i class="fas fa-fish"></i>${fish.name}`;
+                    btn.onclick = () => selectFish(btn, fish.id, fish.name);
+                    container.appendChild(btn);
+                });
+            } catch (err) { 
+                console.error('Error loading fish:', err);
+                document.getElementById('fishOptions').innerHTML = '<div style="grid-column:1/-1; color: red; text-align: center;">Error loading fish data</div>';
+            }
+        }
+
+        function selectFish(el, id, name) {
+            document.querySelectorAll('.fish-btn').forEach(b => b.classList.remove('active'));
+            el.classList.add('active');
+            selectedFishId = id;
+            selectedFishName = name;
+        }
+
+        // 2. บันทึกข้อมูล
+        async function saveLog(action) {
+            const weight = document.getElementById('weightInput').value;
+            const note = document.getElementById('noteInput').value;
+            
+            if (!selectedFishId) {
+                alert('⚠️ กรุณาเลือกชนิดปลา');
+                return;
+            }
+
+            if (!weight || parseFloat(weight) <= 0) {
+                alert('⚠️ กรุณาระบุน้ำหนักที่มากกว่า 0');
+                return;
+            }
+
+            const actionText = action === 'released' ? 'ปล่อยคืน' : 'ซื้อออก';
+
+            if (!confirm(`ยืนยันการบันทึก:\n${selectedFishName}\n${weight} kg\n${actionText}?`)) {
+                return;
+            }
+
+            try {
+                const res = await AppConfig.fetch('/api/fishlog', {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        fish_species_id: selectedFishId,
+                        weight_kg: parseFloat(weight),
+                        action_type: action,
+                        note: note || "บันทึกจาก Mobile Web"
+                    })
+                });
+
+                if (res.ok) {
+                    const result = await res.json();
+                    alert('✅ บันทึกเรียบร้อย');
+                    document.getElementById('weightInput').value = '';
+                    document.getElementById('noteInput').value = '';
+                    await loadHistory();
+                } else {
+                    const error = await res.json();
+                    alert('❌ บันทึกไม่สำเร็จ: ' + (error.error || error.message || 'Unknown error'));
+                }
+            } catch (err) { 
+                console.error('Error:', err);
+                alert('❌ มีข้อผิดพลาด: ' + err.message);
+            }
+        }
+
+        // 3. โหลดประวัติ
+        async function loadHistory() {
+            try {
+                const res = await AppConfig.fetch('/api/fishlog');
+
+                if (!res.ok) throw new Error('Failed to load history');
+
+                const data = await res.json();
+                const list = Array.isArray(data) ? data : data.data || [];
+
+                const ul = document.getElementById('logHistory');
+                
+                if (list.length === 0) {
+                    ul.innerHTML = '<div class="empty-state"><i class="fas fa-inbox"></i><p>ยังไม่มีประวัติการบันทึก</p></div>';
+                    updateStats([]);
+                    return;
+                }
+
+                ul.innerHTML = '';
+
+                list.slice(0, 20).forEach(log => {
+                    const isKept = log.action_type === 'kept';
+                    const li = document.createElement('li');
+                    li.className = `log-item ${isKept ? 'kept' : ''}`;
+                    
+                    const time = new Date(log.created_at || log.action_date);
+                    const timeStr = time.toLocaleTimeString('th-TH', { 
+                        hour: '2-digit', 
+                        minute: '2-digit',
+                        second: '2-digit'
+                    });
+                    const dateStr = time.toLocaleDateString('th-TH');
+
+                    li.innerHTML = `
+                        <div class="log-item-left">
+                            <div class="log-item-name">${log.name || 'ปลา'}</div>
+                            <div class="log-item-time">${dateStr} ${timeStr}</div>
+                        </div>
+                        <div style="display: flex; align-items: center;">
+                            <div class="log-item-right">
+                                <div class="log-item-weight">${log.weight_kg} kg</div>
+                                <span class="log-item-action">${isKept ? '🛒 ซื้อออก' : '💧 ปล่อย'}</span>
+                            </div>
+                            <button class="log-item-delete" onclick="deleteLog(${log.id})">
+                                <i class="fas fa-trash"></i> ลบ
+                            </button>
+                        </div>
+                    `;
+                    ul.appendChild(li);
+                });
+
+                updateStats(list);
+            } catch (err) { 
+                console.error('Error loading history:', err);
+                document.getElementById('logHistory').innerHTML = '<div style="color: red; text-align: center; padding: 20px;">Error loading history</div>';
+            }
+        }
+
+        // 4. คำนวณสถิติ
+        function updateStats(logs) {
+            const released = logs.filter(l => l.action_type === 'released');
+            const kept = logs.filter(l => l.action_type === 'kept');
+
+            const releasedWeight = released.reduce((sum, l) => sum + (parseFloat(l.weight_kg) || 0), 0);
+            const keptWeight = kept.reduce((sum, l) => sum + (parseFloat(l.weight_kg) || 0), 0);
+
+            document.getElementById('statsReleased').textContent = released.length;
+            document.getElementById('statsReleasedWeight').textContent = releasedWeight.toFixed(1) + ' kg';
+            document.getElementById('statsKept').textContent = kept.length;
+            document.getElementById('statsKeptWeight').textContent = keptWeight.toFixed(1) + ' kg';
+        }
+
+        // 5. ลบประวัติ
+        async function deleteLog(id) {
+            if (!confirm('ยืนยันการลบ?')) return;
+
+            try {
+                const res = await AppConfig.fetch(`/api/fishlog/${id}`, {
+                    method: 'DELETE'
+                });
+
+                if (res.ok) {
+                    alert('✅ ลบเรียบร้อย');
+                    loadHistory();
+                } else {
+                    alert('❌ ลบไม่สำเร็จ');
+                }
+            } catch (err) {
+                console.error('Error:', err);
+                alert('❌ มีข้อผิดพลาด');
+            }
+        }
+
+        // 6. Logout
+        function logout() {
+            if (confirm('ออกจากระบบ?')) {
+                localStorage.removeItem('token');
+                localStorage.removeItem('user');
+                window.location.href = 'login.html';
+            }
+        }
+
+        // Initialize
+        if (token) {
+            loadFishSpecies();
+            loadHistory();
+            // Reload history every 30 seconds
+            setInterval(loadHistory, 30000);
+        }
+    </script>
+
+</body>
+</html>

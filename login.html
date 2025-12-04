@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>เข้าสู่ระบบ - Dr.Myland</title>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body { 
+            font-family: 'Sarabun', sans-serif; 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            height: 100vh; 
+            margin: 0; 
+        }
+        .login-container {
+            width: 100%;
+            max-width: 400px;
+            padding: 20px;
+        }
+        .login-card { 
+            background: white; 
+            padding: 40px; 
+            border-radius: 16px; 
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3); 
+            width: 100%;
+            text-align: center; 
+        }
+        .logo {
+            font-size: 3.5em;
+            color: #2563eb;
+            margin-bottom: 10px;
+        }
+        .login-card h2 { 
+            color: #1e3a8a; 
+            margin: 10px 0 30px 0;
+            font-size: 1.8em;
+        }
+        .input-group { 
+            margin-bottom: 20px; 
+            text-align: left; 
+        }
+        .input-group label { 
+            display: block; 
+            margin-bottom: 8px; 
+            color: #475569; 
+            font-size: 0.95em;
+            font-weight: 500;
+        }
+        .input-group input { 
+            width: 100%; 
+            padding: 12px 15px; 
+            border: 2px solid #e2e8f0; 
+            border-radius: 8px; 
+            font-size: 1em; 
+            box-sizing: border-box; 
+            outline: none; 
+            transition: all 0.3s;
+            font-family: 'Sarabun', sans-serif;
+        }
+        .input-group input:focus { 
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+        .btn-login { 
+            width: 100%; 
+            padding: 12px; 
+            background: linear-gradient(135deg, #2563eb, #1d4ed8);
+            color: white; 
+            border: none; 
+            border-radius: 8px; 
+            font-size: 1.05em; 
+            cursor: pointer; 
+            transition: all 0.3s; 
+            font-weight: bold;
+            font-family: 'Sarabun', sans-serif;
+        }
+        .btn-login:hover { 
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(37, 99, 235, 0.3);
+        }
+        .btn-login:active {
+            transform: translateY(0);
+        }
+        .btn-login:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+        .error-msg { 
+            color: #ef4444; 
+            font-size: 0.9em; 
+            margin-top: 15px; 
+            min-height: 20px;
+            background: #fee2e2;
+            padding: 10px 15px;
+            border-radius: 8px;
+            display: none;
+            border-left: 4px solid #ef4444;
+        }
+        .error-msg.show {
+            display: block;
+        }
+        .success-msg {
+            color: #059669;
+            font-size: 0.9em;
+            margin-top: 15px;
+            background: #d1fae5;
+            padding: 10px 15px;
+            border-radius: 8px;
+            display: none;
+            border-left: 4px solid #10b981;
+        }
+        .success-msg.show {
+            display: block;
+        }
+        .demo-info {
+            background: #f0f9ff;
+            border-left: 4px solid #0284c7;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            text-align: left;
+            font-size: 0.85em;
+            color: #0c4a6e;
+        }
+        .demo-info p {
+            margin: 5px 0;
+        }
+        .demo-info strong {
+            color: #0369a1;
+        }
+        .loading-spinner {
+            display: none;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 0.6s linear infinite;
+            margin: 0 auto;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        .btn-login.loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Load config first -->
+    <script src="config.js"></script>
+    <div class="login-container">
+        <div class="login-card">
+            <div class="logo">
+                <i class="fas fa-fish"></i>
+            </div>
+            <h2>Dr. Myland</h2>
+            
+            <form id="loginForm">
+                <div class="input-group">
+                    <label><i class="fas fa-user"></i> ชื่อผู้ใช้</label>
+                    <input type="text" id="username" placeholder="admin" required autofocus>
+                </div>
+                <div class="input-group">
+                    <label><i class="fas fa-lock"></i> รหัสผ่าน</label>
+                    <input type="password" id="password" placeholder="••••••" required>
+                </div>
+                <button type="submit" class="btn-login" id="submitBtn">
+                    <span>เข้าสู่ระบบ</span>
+                </button>
+                <div id="successMsg" class="success-msg"></div>
+                <div id="errorMsg" class="error-msg"></div>
+            </form>
+
+            <div class="demo-info">
+                <p><strong>ข้อมูลทดสอบ:</strong></p>
+                <p>👤 Username: <strong>admin</strong></p>
+                <p>🔑 Password: <strong>123456</strong></p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value;
+            const errorDiv = document.getElementById('errorMsg');
+            const successDiv = document.getElementById('successMsg');
+            const submitBtn = document.getElementById('submitBtn');
+
+            // Reset messages
+            errorDiv.classList.remove('show');
+            successDiv.classList.remove('show');
+
+            // Validate input
+            if (!username || !password) {
+                errorDiv.textContent = 'กรุณากรอกชื่อผู้ใช้และรหัสผ่าน';
+                errorDiv.classList.add('show');
+                return;
+            }
+
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<div class="loading-spinner"></div> <span>กำลังตรวจสอบ...</span>';
+
+            try {
+                // ใช้ AppConfig.fetch แทน fetch ปกติ
+                const res = await AppConfig.fetch('/api/auth/login', {
+                    method: 'POST',
+                    body: JSON.stringify({ username, password })
+                });
+
+                const data = await res.json();
+
+                if (data.success && data.data && data.data.token) {
+                    // บันทึก Token และข้อมูล User
+                    const userData = {
+                        id: data.data.user?.id || 1,
+                        username: data.data.user?.username || username,
+                        role: data.data.user?.role || 'admin',
+                        token: data.data.token
+                    };
+                    
+                    localStorage.setItem('user', JSON.stringify(userData));
+                    localStorage.setItem('token', data.data.token);
+                    
+                    successDiv.textContent = '✅ ล็อกอินสำเร็จ! กำลังไปยังหน้าแอดมิน...';
+                    successDiv.classList.add('show');
+                    
+                    // รอสักครู่แล้วไปหน้า admin
+                    setTimeout(() => {
+                        window.location.href = 'admin.html';
+                    }, 1000);
+                } else {
+                    errorDiv.textContent = data.error || '❌ ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง';
+                    errorDiv.classList.add('show');
+                }
+            } catch (err) {
+                console.error('Login error:', err);
+                errorDiv.textContent = '❌ ไม่สามารถเชื่อมต่อ Server ได้ กรุณาลองใหม่';
+                errorDiv.classList.add('show');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<span>เข้าสู่ระบบ</span>';
+            }
+        });
+
+        // Check if already logged in
+        window.addEventListener('load', () => {
+            const user = localStorage.getItem('user');
+            if (user) {
+                // Already logged in, redirect to admin
+                window.location.href = 'admin.html';
+            }
+        });
+
+        // Allow Enter key to submit
+        document.getElementById('password').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                document.getElementById('loginForm').dispatchEvent(new Event('submit'));
+            }
+        });
+    </script>
+</body>
+</html>

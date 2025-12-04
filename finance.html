@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <title>บัญชีและการเงิน</title>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body { 
+            font-family: 'Sarabun', sans-serif; 
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container { max-width: 1400px; margin: 0 auto; }
+
+        .header {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            color: #1e293b;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.8em;
+        }
+
+        .logout-btn {
+            padding: 10px 20px;
+            background: #ef4444;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: 'Sarabun', sans-serif;
+            font-size: 1em;
+        }
+
+        .logout-btn:hover { background: #dc2626; }
+
+        /* Summary Cards */
+        .summary-grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); 
+            gap: 20px; 
+            margin-bottom: 30px; 
+        }
+
+        .summary-card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            border-left: 5px solid #3b82f6;
+        }
+
+        .summary-card.income { border-left-color: #10b981; }
+        .summary-card.expense { border-left-color: #ef4444; }
+        .summary-card.profit { border-left-color: #8b5cf6; }
+
+        .summary-card h3 {
+            color: #64748b;
+            font-size: 0.9em;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .summary-card .value {
+            font-size: 2em;
+            font-weight: bold;
+            color: #1e293b;
+        }
+
+        .value.income { color: #10b981; }
+        .value.expense { color: #ef4444; }
+        .value.profit { color: #8b5cf6; }
+
+        /* Main Layout */
+        .main-content {
+            display: grid;
+            grid-template-columns: 350px 1fr;
+            gap: 20px;
+        }
+
+        /* Form Section */
+        .form-card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            height: fit-content;
+        }
+
+        .form-card h3 {
+            margin-bottom: 20px;
+            color: #1e293b;
+            font-size: 1.1em;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #475569;
+            font-weight: 500;
+            font-size: 0.95em;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            box-sizing: border-box;
+            font-family: 'Sarabun', sans-serif;
+            font-size: 0.95em;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .btn-submit {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #3b82f6 0%, #1e40af 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 600;
+            font-family: 'Sarabun', sans-serif;
+            transition: transform 0.2s;
+        }
+
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+        }
+
+        /* Table Section */
+        .table-card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        }
+
+        .table-card h3 {
+            margin-bottom: 20px;
+            color: #1e293b;
+            font-size: 1.1em;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        th {
+            background: #f8fafc;
+            color: #475569;
+            font-weight: 600;
+            font-size: 0.95em;
+        }
+
+        tr:hover { background: #f8fafc; }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 600;
+        }
+
+        .badge.income {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .badge.expense {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .amount {
+            font-weight: 600;
+            font-size: 1.05em;
+        }
+
+        .amount.income { color: #10b981; }
+        .amount.expense { color: #ef4444; }
+
+        .delete-btn {
+            color: #ef4444;
+            border: none;
+            background: none;
+            cursor: pointer;
+            font-size: 1.1em;
+            padding: 5px;
+            transition: transform 0.2s;
+        }
+
+        .delete-btn:hover {
+            transform: scale(1.2);
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #94a3b8;
+        }
+
+        .empty-state i {
+            font-size: 3em;
+            margin-bottom: 10px;
+            opacity: 0.5;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+
+            .summary-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .header {
+                flex-direction: column;
+                gap: 15px;
+            }
+        }
+    </style>
+    <script src="config.js"></script>
+</head>
+<body>
+
+    <div class="container">
+        <div class="header">
+            <h1><i class="fas fa-chart-pie"></i> บัญชีและการเงิน</h1>
+            <button class="logout-btn" onclick="logout()"><i class="fas fa-sign-out-alt"></i> ออกจากระบบ</button>
+        </div>
+
+        <!-- Summary Cards -->
+        <div class="summary-grid">
+            <div class="summary-card income">
+                <h3>รายรับรวม</h3>
+                <div class="value income" id="totalIncome">฿0</div>
+            </div>
+            <div class="summary-card expense">
+                <h3>รายจ่ายรวม</h3>
+                <div class="value expense" id="totalExpense">฿0</div>
+            </div>
+            <div class="summary-card profit">
+                <h3>กำไรสุทธิ</h3>
+                <div class="value profit" id="netProfit">฿0</div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Form Section -->
+            <div class="form-card">
+                <h3><i class="fas fa-plus-circle"></i> บันทึกรายการ</h3>
+                <form id="financeForm">
+                    <div class="form-group">
+                        <label>ประเภท</label>
+                        <select id="finType">
+                            <option value="expense">รายจ่าย (Expense)</option>
+                            <option value="income">รายรับอื่นๆ (Income)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>จำนวนเงิน (บาท)</label>
+                        <input type="number" id="finAmount" step="0.01" required placeholder="0.00">
+                    </div>
+                    <div class="form-group">
+                        <label>หมวดหมู่</label>
+                        <input type="text" id="finCategory" placeholder="เช่น ค่าไฟ, ซื้อปลา, เงินเดือน">
+                    </div>
+                    <div class="form-group">
+                        <label>รายละเอียดเพิ่มเติม</label>
+                        <textarea id="finDesc" rows="3" placeholder="บันทึกเพิ่มเติม..."></textarea>
+                    </div>
+                    <button type="submit" class="btn-submit"><i class="fas fa-save"></i> บันทึกรายการ</button>
+                </form>
+            </div>
+
+            <!-- Table Section -->
+            <div class="table-card">
+                <h3><i class="fas fa-list"></i> รายการล่าสุด</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>วันที่</th>
+                            <th>ประเภท</th>
+                            <th>หมวดหมู่</th>
+                            <th>รายละเอียด</th>
+                            <th style="text-align: right;">จำนวนเงิน</th>
+                            <th style="text-align: center;">ลบ</th>
+                        </tr>
+                    </thead>
+                    <tbody id="financeTable">
+                        <tr>
+                            <td colspan="6" style="text-align: center; color: #94a3b8;">
+                                <i class="fas fa-spinner fa-spin"></i> กำลังโหลด...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const token = localStorage.getItem('token');
+
+        // Check authentication
+        if (!token) {
+            window.location.href = 'login.html';
+        }
+
+        // 1. โหลดข้อมูลสรุปและตาราง
+        async function loadData() {
+            try {
+                // โหลดสรุปยอด
+                const resSum = await AppConfig.fetch('/api/finance/summary');
+                const sumData = await resSum.json();
+                
+                if(sumData.success) {
+                    const d = sumData.data;
+                    document.getElementById('totalIncome').innerText = `฿${d.total_income.toLocaleString('th-TH', {minimumFractionDigits: 2})}`;
+                    document.getElementById('totalExpense').innerText = `฿${d.total_expense.toLocaleString('th-TH', {minimumFractionDigits: 2})}`;
+                    document.getElementById('netProfit').innerText = `฿${d.net_profit.toLocaleString('th-TH', {minimumFractionDigits: 2})}`;
+                }
+
+                // โหลดตาราง
+                const resList = await AppConfig.fetch('/api/finance');
+                const listData = await resList.json();
+                
+                const tbody = document.getElementById('financeTable');
+                tbody.innerHTML = '';
+                
+                const items = listData.data || [];
+                if (items.length === 0) {
+                    tbody.innerHTML = `
+                        <tr>
+                            <td colspan="6" style="text-align: center; padding: 40px;">
+                                <i class="fas fa-inbox"></i> ยังไม่มีรายการ
+                            </td>
+                        </tr>
+                    `;
+                    return;
+                }
+                
+                items.forEach(item => {
+                    const isIncome = item.type === 'income';
+                    const date = new Date(item.created_at).toLocaleDateString('th-TH');
+                    const amount = parseFloat(item.amount).toLocaleString('th-TH', {minimumFractionDigits: 2});
+                    
+                    tbody.innerHTML += `
+                        <tr>
+                            <td>${date}</td>
+                            <td><span class="badge ${isIncome ? 'income' : 'expense'}">${isIncome ? 'รายรับ' : 'รายจ่าย'}</span></td>
+                            <td>${item.category || '-'}</td>
+                            <td title="${item.description || ''}">${(item.description || '-').substring(0, 30)}${(item.description || '').length > 30 ? '...' : ''}</td>
+                            <td style="text-align: right;"><span class="amount ${isIncome ? 'income' : 'expense'}">฿${amount}</span></td>
+                            <td style="text-align: center;"><button onclick="deleteItem(${item.id})" class="delete-btn" title="ลบรายการ"><i class="fas fa-trash"></i></button></td>
+                        </tr>
+                    `;
+                });
+
+            } catch (err) { 
+                console.error(err);
+                alert('เกิดข้อผิดพลาด: ' + err.message);
+            }
+        }
+
+        // 2. บันทึกรายการ
+        document.getElementById('financeForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const amount = parseFloat(document.getElementById('finAmount').value);
+            if (amount <= 0) {
+                alert('กรุณาใส่จำนวนเงินที่มากกว่า 0');
+                return;
+            }
+
+            const payload = {
+                type: document.getElementById('finType').value,
+                amount: amount,
+                category: document.getElementById('finCategory').value || 'ไม่ระบุ',
+                description: document.getElementById('finDesc').value
+            };
+
+            try {
+                const res = await AppConfig.fetch('/api/finance', {
+                    method: 'POST',
+                    body: JSON.stringify(payload)
+                });
+                
+                if(res.ok) {
+                    document.getElementById('financeForm').reset();
+                    loadData();
+                    alert('บันทึกรายการสำเร็จ');
+                } else {
+                    alert('บันทึกไม่สำเร็จ');
+                }
+            } catch (err) { 
+                alert('Error: ' + err.message);
+            }
+        });
+
+        // 3. ลบรายการ
+        async function deleteItem(id) {
+            if(!confirm('ต้องการลบรายการนี้หรือไม่?')) return;
+            
+            try {
+                const res = await AppConfig.fetch(`/api/finance/${id}`, { 
+                    method: 'DELETE'
+                });                if(res.ok) {
+                    loadData();
+                    alert('ลบรายการสำเร็จ');
+                } else {
+                    alert('ลบไม่สำเร็จ');
+                }
+            } catch (err) {
+                alert('Error: ' + err.message);
+            }
+        }
+
+        // 4. Logout
+        function logout() {
+            if(confirm('ออกจากระบบใช่หรือไม่?')) {
+                localStorage.removeItem('token');
+                window.location.href = 'login.html';
+            }
+        }
+
+        // โหลดข้อมูล
+        loadData();
+
+        // รีโหลดทุก 30 วินาที
+        setInterval(loadData, 30000);
+    </script>
+</body>
+</html>

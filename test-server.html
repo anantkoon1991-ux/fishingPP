@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Server & API Test</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .container {
+            background: white;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+        }
+        h1 {
+            color: #667eea;
+            margin-top: 0;
+            text-align: center;
+        }
+        h2 {
+            color: #764ba2;
+            margin-top: 30px;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            background: #f8f9fa;
+            border-left: 4px solid #667eea;
+            border-radius: 5px;
+        }
+        button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            margin: 5px 5px 5px 0;
+            transition: all 0.3s;
+        }
+        button:hover {
+            background: #764ba2;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        button:active {
+            transform: translateY(0);
+        }
+        .result {
+            margin-top: 15px;
+            padding: 15px;
+            background: #f0f0f0;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            max-height: 300px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+        .success {
+            color: #28a745;
+            font-weight: bold;
+        }
+        .error {
+            color: #dc3545;
+            font-weight: bold;
+        }
+        .info {
+            color: #17a2b8;
+        }
+        .loading {
+            color: #ffc107;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background: #667eea;
+            color: white;
+        }
+        tr:nth-child(even) {
+            background: #f9f9f9;
+        }
+        .status-indicator {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        .status-ok {
+            background: #28a745;
+        }
+        .status-error {
+            background: #dc3545;
+        }
+    </style>
+    <script src="config.js"></script>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Server & API Test Console</h1>
+        
+        <h2>🔧 Server Health Check</h2>
+        <div class="test-section">
+            <button onclick="testHealth()">Test Health Endpoint</button>
+            <div id="healthResult" class="result"></div>
+        </div>
+
+        <h2>🐟 Fish Stock API Tests</h2>
+        <div class="test-section">
+            <p>Get all fish stock data:</p>
+            <button onclick="testGetStock()">GET /api/fish-stock/stock</button>
+            <div id="stockResult" class="result"></div>
+        </div>
+
+        <div class="test-section">
+            <p>Get stock history:</p>
+            <button onclick="testGetHistory()">GET /api/fish-stock/history</button>
+            <div id="historyResult" class="result"></div>
+        </div>
+
+        <div class="test-section">
+            <p>Get warnings:</p>
+            <button onclick="testGetWarnings()">GET /api/fish-stock/warnings</button>
+            <div id="warningsResult" class="result"></div>
+        </div>
+
+        <h2>🔑 Configuration Check</h2>
+        <div class="test-section">
+            <button onclick="testConfig()">Test AppConfig</button>
+            <div id="configResult" class="result"></div>
+        </div>
+
+        <h2>📊 Test Results Summary</h2>
+        <div id="summary" class="test-section"></div>
+    </div>
+
+    <script>
+        const results = {
+            health: null,
+            stock: null,
+            history: null,
+            warnings: null
+        };
+
+        function displayResult(elementId, success, message, data = null) {
+            const el = document.getElementById(elementId);
+            let html = success ? '<span class="success">✅ SUCCESS</span>' : '<span class="error">❌ ERROR</span>';
+            html += `\n${message}`;
+            if (data) {
+                html += `\n\n${JSON.stringify(data, null, 2)}`;
+            }
+            el.innerHTML = html;
+        }
+
+        async function testHealth() {
+            const el = document.getElementById('healthResult');
+            el.innerHTML = '<span class="loading">⏳ Testing...</span>';
+            
+            try {
+                const response = await AppConfig.fetch('/health');
+                const data = await response.json();
+                results.health = response.ok;
+                displayResult('healthResult', true, `Status: ${response.status}`, data);
+            } catch (err) {
+                results.health = false;
+                displayResult('healthResult', false, `Error: ${err.message}`);
+            }
+            updateSummary();
+        }
+
+        async function testGetStock() {
+            const el = document.getElementById('stockResult');
+            el.innerHTML = '<span class="loading">⏳ Testing...</span>';
+            
+            try {
+                const response = await AppConfig.fetch('/api/fish-stock/stock');
+                const data = await response.json();
+                results.stock = response.ok;
+                
+                let message = `Status: ${response.status}`;
+                if (response.ok && data.data) {
+                    message += `\nRecords found: ${data.data.length}`;
+                }
+                displayResult('stockResult', response.ok, message, data);
+            } catch (err) {
+                results.stock = false;
+                displayResult('stockResult', false, `Error: ${err.message}`);
+            }
+            updateSummary();
+        }
+
+        async function testGetHistory() {
+            const el = document.getElementById('historyResult');
+            el.innerHTML = '<span class="loading">⏳ Testing...</span>';
+            
+            try {
+                const response = await AppConfig.fetch('/api/fish-stock/history');
+                const data = await response.json();
+                results.history = response.ok;
+                
+                let message = `Status: ${response.status}`;
+                if (response.ok && data.data) {
+                    message += `\nRecords found: ${data.data.length}`;
+                }
+                displayResult('historyResult', response.ok, message, data);
+            } catch (err) {
+                results.history = false;
+                displayResult('historyResult', false, `Error: ${err.message}`);
+            }
+            updateSummary();
+        }
+
+        async function testGetWarnings() {
+            const el = document.getElementById('warningsResult');
+            el.innerHTML = '<span class="loading">⏳ Testing...</span>';
+            
+            try {
+                const response = await AppConfig.fetch('/api/fish-stock/warnings');
+                const data = await response.json();
+                results.warnings = response.ok;
+                
+                let message = `Status: ${response.status}`;
+                if (response.ok && data.data) {
+                    message += `\nWarnings found: ${data.data.length}`;
+                }
+                displayResult('warningsResult', response.ok, message, data);
+            } catch (err) {
+                results.warnings = false;
+                displayResult('warningsResult', false, `Error: ${err.message}`);
+            }
+            updateSummary();
+        }
+
+        function testConfig() {
+            const el = document.getElementById('configResult');
+            let html = '<span class="success">✅ AppConfig loaded</span>\n\n';
+            html += `API_BASE_URL: ${AppConfig.API_BASE_URL || '(empty string - port 3000)'}\n`;
+            html += `fetch() function: ${typeof AppConfig.fetch}\n`;
+            html += `localStorage.token: ${localStorage.getItem('token') ? '✅ Present' : '❌ Not set'}\n`;
+            el.innerHTML = html;
+        }
+
+        function updateSummary() {
+            let passed = 0;
+            let total = 0;
+            const summaryHtml = document.getElementById('summary');
+            
+            const tests = [
+                { name: 'Health Endpoint', result: results.health },
+                { name: 'Fish Stock API', result: results.stock },
+                { name: 'History API', result: results.history },
+                { name: 'Warnings API', result: results.warnings }
+            ];
+
+            let html = '<table><tr><th>Test</th><th>Status</th></tr>';
+            tests.forEach(test => {
+                if (test.result !== null) {
+                    total++;
+                    if (test.result) passed++;
+                    const status = test.result ? 
+                        '<span class="status-indicator status-ok"></span>✅ Pass' :
+                        '<span class="status-indicator status-error"></span>❌ Fail';
+                    html += `<tr><td>${test.name}</td><td>${status}</td></tr>`;
+                }
+            });
+            html += '</table>';
+            
+            if (total > 0) {
+                html += `\n<p><strong>Overall: ${passed}/${total} tests passed</strong></p>`;
+            }
+            
+            summaryHtml.innerHTML = html;
+        }
+
+        // Run initial config test
+        document.addEventListener('DOMContentLoaded', () => {
+            testConfig();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>บริการลูกค้า - Dr.Myland</title>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body { font-family: 'Sarabun', sans-serif; background: #f0f2f5; padding: 20px; text-align: center; }
+        .container { max-width: 500px; margin: 0 auto; background: white; padding: 30px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+        
+        h2 { color: #1e3a8a; margin-bottom: 20px; }
+        .location-input { width: 100%; padding: 12px; border: 2px solid #3b82f6; border-radius: 10px; font-size: 1.2em; text-align: center; margin-bottom: 20px; background: #eff6ff; color: #1e3a8a; font-weight: bold; }
+        
+        .grid-buttons { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
+        .btn-service { 
+            border: none; padding: 25px; border-radius: 15px; font-size: 1.1em; cursor: pointer; 
+            transition: 0.2s; display: flex; flex-direction: column; align-items: center; gap: 10px;
+            background: white; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border: 2px solid transparent;
+        }
+        .btn-service i { font-size: 2.5em; }
+        
+        /* สีปุ่มแต่ละประเภท */
+        .btn-food { color: #d97706; border-color: #fcd34d; }
+        .btn-food:active { background: #fffbeb; transform: scale(0.95); }
+        
+        .btn-bait { color: #059669; border-color: #6ee7b7; }
+        .btn-bait:active { background: #ecfdf5; transform: scale(0.95); }
+        
+        .btn-bill { color: #2563eb; border-color: #93c5fd; }
+        .btn-bill:active { background: #eff6ff; transform: scale(0.95); }
+        
+        .btn-staff { color: #dc2626; border-color: #fca5a5; }
+        .btn-staff:active { background: #fef2f2; transform: scale(0.95); }
+
+        .note-input { width: 100%; padding: 10px; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 8px; display: none; }
+        
+        .success-modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); color: white; align-items: center; justify-content: center; flex-direction: column; z-index: 999; }
+        .success-modal i { font-size: 4em; color: #4ade80; margin-bottom: 20px; }
+
+        .logo { height: 60px; margin-bottom: 10px; }
+    </style>
+    <script src="config.js"></script>
+</head>
+<body>
+        <img src="../assets/Logo.gif" class="logo" alt="Dr.Myland logo" title="Dr.Myland">
+    <div class="container">
+        <img src="../assets/Logo.gif" class="logo" alt="Dr.Myland logo" title="Dr.Myland">
+        <h2>ต้องการให้ช่วยอะไรครับ?</h2>
+        
+        <input type="text" id="locationName" class="location-input" placeholder="ระบุ ซุ้ม/โต๊ะ ของท่าน">
+
+        <div class="grid-buttons">
+            <button class="btn-service btn-food" onclick="request('food')">
+                <i class="fas fa-utensils"></i> สั่งอาหาร/เครื่องดื่ม
+            </button>
+            <button class="btn-service btn-bait" onclick="request('bait')">
+                <i class="fas fa-fish"></i> สั่งเหยื่อ/อุปกรณ์
+            </button>
+            <button class="btn-service btn-bill" onclick="request('bill')">
+                <i class="fas fa-file-invoice-dollar"></i> เช็คบิล
+            </button>
+            <button class="btn-service btn-staff" onclick="request('other')">
+                <i class="fas fa-bell"></i> เรียกพนักงาน
+            </button>
+        </div>
+
+        <input type="text" id="detailNote" class="note-input" placeholder="ระบุรายละเอียด (เช่น เอาโค้ก 2 ขวด)">
+    </div>
+
+    <div id="successModal" class="success-modal">
+        <i class="fas fa-check-circle"></i>
+        <h2>เรียกพนักงานแล้ว!</h2>
+        <p>กรุณารอสักครู่ พนักงานกำลังไปหาครับ</p>
+    </div>
+
+    <script>
+        function request(type) {
+            const loc = document.getElementById('locationName').value;
+            if(!loc) return alert('กรุณาระบุซุ้มหรือโต๊ะก่อนครับ');
+
+            let detail = '';
+            if(type === 'food' || type === 'bait') {
+                detail = prompt("ต้องการสั่งอะไรเป็นพิเศษไหมครับ? (เช่น ข้าวกะเพรา, รำ 1 ถุง)");
+                if(detail === null) return; // กดยกเลิก
+            }
+
+            fetch('http://localhost:3000/api/service/request', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ location: loc, type: type, detail: detail || '' })
+            });
+
+            // Show Success Animation
+            const modal = document.getElementById('successModal');
+            modal.style.display = 'flex';
+            setTimeout(() => { modal.style.display = 'none'; }, 3000);
+        }
+    </script>
+</body>
+</html>
